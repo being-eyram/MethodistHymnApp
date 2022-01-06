@@ -5,6 +5,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -66,7 +67,7 @@ fun MHANavGraph(navController: NavHostController) {
         }
 
         composable(route = Screen.Favorites.route) {
-            FavoritesScreen()
+            FavoritesScreen(hiltViewModel())
             OnBackPressed(navController)
         }
     }

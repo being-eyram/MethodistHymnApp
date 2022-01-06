@@ -1,6 +1,5 @@
 package com.example.methodisthymnapp.ui.component
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,7 +13,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,19 +20,6 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import com.example.methodisthymnapp.R
-import com.example.methodisthymnapp.ui.theme.MHATheme
-
-
-@Composable
-fun HymnCard() {
-    HymnCard(
-        num = 0,
-        title = "Preview",
-        body = "My soul rejoice and praise the Lord. Rejoice and praise",
-        author = "Eyram Michael",
-        onCardClick = {}
-    )
-}
 
 @Composable
 fun HymnCard(
@@ -42,6 +27,8 @@ fun HymnCard(
     title: String,
     body: String,
     author: String,
+    favoriteState: FavoriteState,
+    onFavoriteIcClick: () -> Unit,
     onCardClick: () -> Unit
 ) {
     Card(
@@ -110,7 +97,10 @@ fun HymnCard(
                         modifier = Modifier.padding(top = 7.dp),
                         author = author
                     )
-                    AnimatedFavoriteIcon()
+                    AnimatedFavoriteIcon(
+                        state = favoriteState,
+                        onFavoriteIcClick = onFavoriteIcClick
+                    )
                 }
             }
             Spacer(Modifier.width(16.dp))
@@ -154,12 +144,7 @@ fun AuthorTag(modifier: Modifier = Modifier, author: String) {
 @Composable
 fun MHAAppBar(
     elevation: Dp,
-    search: String,
-    showSearchBox: Boolean,
-    onSearchChange: (String) -> Unit,
     onSearchActionClick: () -> Unit,
-    onReturnClick: () -> Unit,
-    onClearClick: () -> Unit
 ) {
     TopAppBar(
         backgroundColor = Color.White,
@@ -167,42 +152,23 @@ fun MHAAppBar(
         elevation = elevation
     ) {
 
-
         Row(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            if (showSearchBox) {
-                AnimatedVisibility(
-                    visible = showSearchBox,
-                ) {
-                    SearchBox(
-                        modifier = Modifier
-                            .height(40.dp)
-                            .padding(horizontal = 8.dp),
-                        search = search,
-                        onSearchTermChange = onSearchChange,
-                        onReturnClick = onReturnClick,
-                        onClearClick = onClearClick
-                    )
-                }
-            } else {
+            Text(
+                modifier = Modifier.padding(start = 16.dp),
+                text = "Methodist Hymn App",
+                style = MaterialTheme.typography.h1
+            )
 
-                Text(
-                    modifier = Modifier.padding(start = 16.dp),
-                    text = "Methodist Hymn App",
-                    style = MaterialTheme.typography.h1
+            IconButton(onClick = onSearchActionClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_search),
+                    contentDescription = "Search Hymns Action"
                 )
-
-                IconButton(onClick = onSearchActionClick) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_search),
-                        contentDescription = "Search Hymns Action"
-                    )
-                }
-
             }
         }
     }
@@ -250,10 +216,4 @@ fun MHABottomNavBar(
     }
 }
 
-@Preview
-@Composable
-fun HymnCardPreview() {
-    MHATheme() {
-        HymnCard()
-    }
-}
+

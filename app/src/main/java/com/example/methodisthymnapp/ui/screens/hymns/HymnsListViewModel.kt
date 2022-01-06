@@ -15,19 +15,11 @@ import javax.inject.Inject
 @HiltViewModel
 class HymnsListViewModel @Inject constructor(private val repository: MHARepository) : ViewModel() {
 
-    private var _result = MutableLiveData<List<HymnEntity>>()
-    val result: LiveData<List<HymnEntity>>
-        get() = _result
     private var _searchResult = MutableLiveData<List<HymnEntity>>()
     val searchResult: LiveData<List<HymnEntity>>
         get() = _searchResult
 
-    init {
-        viewModelScope.launch {
-            val result = repository.allHymns()
-            _result.value = result
-        }
-    }
+    fun getAllHymns() = repository.allHymns()
 
     fun search(query: String) {
         viewModelScope.launch {
@@ -38,11 +30,19 @@ class HymnsListViewModel @Inject constructor(private val repository: MHAReposito
         }
     }
 
-    fun search(query : Int ) {
+    fun search(query: Int) {
         viewModelScope.launch {
             val result = repository.search(query)
             withContext(Dispatchers.Main) {
                 _searchResult.value = result
+            }
+        }
+    }
+
+    fun updateFavoriteState(id: Int, isFavorite: Int) {
+        viewModelScope.launch {
+            withContext(Dispatchers.Main) {
+                repository.updateFavoriteState(id, isFavorite)
             }
         }
     }

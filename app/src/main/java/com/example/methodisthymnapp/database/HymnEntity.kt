@@ -21,6 +21,9 @@ data class HymnEntity(
 
     @ColumnInfo(name = "lyrics")
     val lyrics: String,
+
+    @ColumnInfo(name = "is_favorite")
+    val isFavorite: Int
 )
 
 @Entity(tableName = "hymns_fts")

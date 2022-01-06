@@ -26,8 +26,8 @@ object MHAModule {
         return Room.databaseBuilder(
             context,
             MHADatabase::class.java,
-            "hymn.db"
-        ).createFromAsset("mhb.db")
+            "mhb.db"
+        ).createFromAsset("mhb2.db")
             .addCallback(callback)
             .build()
     }

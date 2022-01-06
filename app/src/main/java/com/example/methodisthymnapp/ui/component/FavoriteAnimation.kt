@@ -31,7 +31,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 const val NUMBER_OF_RINGS = 3
-private enum class FavoriteState(@DrawableRes val drawable: Int) {
+
+enum class FavoriteState(@DrawableRes val drawable: Int) {
     NOPE(R.drawable.ic_heartoutlined),
     YES(R.drawable.ic_heartfilled)
 }
@@ -40,7 +41,11 @@ private enum class FavoriteState(@DrawableRes val drawable: Int) {
 //TODO: hoist the Favorite state & its event to make it usable with the isFavorite field
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun AnimatedFavoriteIcon(modifier: Modifier = Modifier) {
+fun AnimatedFavoriteIcon(
+    modifier: Modifier = Modifier,
+    state: FavoriteState,
+    onFavoriteIcClick: () -> Unit
+) {
     val rippleRadius = MutableList(
         size = NUMBER_OF_RINGS,
         init = { remember { mutableStateOf(0f) } }
@@ -57,7 +62,6 @@ fun AnimatedFavoriteIcon(modifier: Modifier = Modifier) {
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
     val interactionSource = remember { MutableInteractionSource() }
-    var favoriteState by remember { mutableStateOf(FavoriteState.NOPE) }
 
     Box(
         modifier = modifier
@@ -66,15 +70,10 @@ fun AnimatedFavoriteIcon(modifier: Modifier = Modifier) {
             .padding(bottom = 4.dp)
             .clickable(
                 indication = null,
-                interactionSource = interactionSource
-            ) {
-                favoriteState = when (favoriteState) {
-                    FavoriteState.NOPE -> FavoriteState.YES
-                    FavoriteState.YES -> FavoriteState.NOPE
-                }
-            },
-
-        ) {
+                interactionSource = interactionSource,
+                onClick = onFavoriteIcClick
+            )
+    ) {
         /** draw three rings */
         repeat(NUMBER_OF_RINGS) { index ->
             Ripple(
@@ -90,11 +89,11 @@ fun AnimatedFavoriteIcon(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 7.dp),
-            targetState = favoriteState,
+            targetState = state,
             transitionSpec = {
                 ContentTransform(
                     //if the incoming favorite is nope, (scale + slide), else show ripple and scale
-                    targetContentEnter = if (favoriteState == FavoriteState.NOPE) {
+                    targetContentEnter = if (state == FavoriteState.NOPE) {
                         scaleIn(spring()) + slideInHorizontally(spring(Spring.DampingRatioHighBouncy))
                     } else {
                         animateRipple(
@@ -112,7 +111,7 @@ fun AnimatedFavoriteIcon(modifier: Modifier = Modifier) {
             }
         ) {
             Icon(
-                painter = painterResource(id = favoriteState.drawable),
+                painter = painterResource(id = state.drawable),
                 contentDescription = "Favorites Button",
                 tint = Color.Unspecified,
             )
