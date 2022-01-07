@@ -18,13 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -39,37 +36,27 @@ fun SearchBox(
     modifier: Modifier = Modifier,
     placeholder: String = SEARCH,
     search: String = emptyString,
+    readOnly: Boolean,
     onSearchTermChange: (String) -> Unit,
+    keyboardActions: KeyboardActions,
+    onTextFieldClick: () -> Unit,
     onReturnClick: () -> Unit,
     onClearClick: () -> Unit,
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusRequester = remember { FocusRequester() }
-    var readOnly by remember { mutableStateOf(false) }
+
 
     SearchFieldLayout(
-        modifier = modifier.focusRequester(focusRequester),
+        modifier = modifier,
         search = search,
         readOnly = readOnly,
         placeholder = { Text(placeholder, fontSize = 16.sp) },
         onSearchTermChange = onSearchTermChange,
         onClearClick = onClearClick,
         onReturnClick = onReturnClick,
-        keyboardActions = KeyboardActions(
-            onSearch = {
-                keyboardController?.hide()
-                readOnly = !readOnly
-            }
-        ),
-        onTextFieldClick = {
-            if (readOnly) readOnly = false
-            keyboardController?.show()
-        }
+        keyboardActions = keyboardActions,
+        onTextFieldClick = onTextFieldClick
     )
 
-    SideEffect {
-        focusRequester.requestFocus()
-    }
 }
 
 @Composable

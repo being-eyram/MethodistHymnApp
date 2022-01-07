@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -34,10 +33,6 @@ fun HymnsScreen(
 ) {
     val hymns by viewModel.getAllHymns().collectAsState(initial = listOf())
     val listState = rememberLazyListState()
-    var search by remember { mutableStateOf("") }
-    val searchResult by viewModel.searchResult.observeAsState()
-    var showSearchBox by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
     val cloud = (LocalContext.current.applicationContext as HymnApplication).cloud
 
 
