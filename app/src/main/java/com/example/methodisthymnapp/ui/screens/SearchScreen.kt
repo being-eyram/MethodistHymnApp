@@ -18,7 +18,10 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.methodisthymnapp.ui.component.*
+import com.example.methodisthymnapp.ui.component.HymnCard
+import com.example.methodisthymnapp.ui.component.Screen
+import com.example.methodisthymnapp.ui.component.SearchBox
+import com.example.methodisthymnapp.ui.component.emptyString
 import com.example.methodisthymnapp.ui.screens.hymns.HymnsListViewModel
 import com.example.methodisthymnapp.ui.screens.hymns.elevation
 
@@ -84,22 +87,14 @@ fun SearchScreen(
             ) {
                 if (searchResult != null) {
                     items(searchResult!!) { hymn ->
-                        val initState =
-                            if (hymn.isFavorite == 0) FavoriteState.NOPE else FavoriteState.YES
-                        var favoriteState by remember { mutableStateOf(initState) }
+                        var isFavorite by remember { mutableStateOf(hymn.isFavorite != 0) }
 
                         HymnCard(
-                            num = hymn.id,
-                            title = hymn.title,
-                            body = hymn.lyrics,
-                            author = hymn.author,
-                            favoriteState = favoriteState,
-                            onFavoriteIcClick = {
-                                favoriteState = when (favoriteState) {
-                                    FavoriteState.NOPE -> FavoriteState.YES
-                                    FavoriteState.YES -> FavoriteState.NOPE
-                                }
-                                viewModel.updateFavoriteState(hymn.id, favoriteState.ordinal)
+                            hymn,
+                            isFavorite = isFavorite,
+                            onFavoriteButtonToggle = {
+                                isFavorite = !isFavorite
+                                viewModel.updateFavoriteState(hymn.id, isFavorite.compareTo(false))
                             },
                             onCardClick = {
                                 navController.navigate(Screen.HymnsList.createRoute("details"))
@@ -107,12 +102,12 @@ fun SearchScreen(
                         )
                         Spacer(Modifier.padding(top = 16.dp))
 
-                        SideEffect {
-                            if (listState.isScrollInProgress) {
-                                keyboardController?.hide()
-                                readOnly = !readOnly
-                            }
-                        }
+//                        SideEffect {
+//                            if (listState) {
+//                                keyboardController?.hide()
+//                                readOnly = !readOnly
+//                            }
+//                        }
                     }
                 }
             }

@@ -1,18 +1,16 @@
 package com.example.methodisthymnapp.ui.component
 
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.runtime.*
@@ -31,48 +29,41 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 const val NUMBER_OF_RINGS = 3
+const val IS_FAV_IC = R.drawable.ic_heartfilled
+const val IS_NOT_FAV_IC = R.drawable.ic_heartoutlined
 
-enum class FavoriteState(@DrawableRes val drawable: Int) {
-    NOPE(R.drawable.ic_heartoutlined),
-    YES(R.drawable.ic_heartfilled)
-}
-
-
-//TODO: hoist the Favorite state & its event to make it usable with the isFavorite field
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun AnimatedFavoriteIcon(
+fun FavoriteToggleButton(
     modifier: Modifier = Modifier,
-    state: FavoriteState,
-    onFavoriteIcClick: () -> Unit
+    isFavorite: Boolean,
+    onClick: () -> Unit
 ) {
-    val rippleRadius = MutableList(
+    val rippleRadius = List(
         size = NUMBER_OF_RINGS,
         init = { remember { mutableStateOf(0f) } }
     )
-    val rippleStrokeWidth = MutableList(
+    val rippleStrokeWidth = List(
         size = NUMBER_OF_RINGS,
         init = { remember { mutableStateOf(0f) } }
     )
-    val rippleAlpha = MutableList(
+    val rippleAlpha = List(
         size = NUMBER_OF_RINGS,
         init = { remember { mutableStateOf(1f) } }
     )
-
-    val density = LocalDensity.current
+    val screenDensity = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
-    val interactionSource = remember { MutableInteractionSource() }
 
     Box(
         modifier = modifier
             .height(40.dp)
             .width(48.dp)
             .padding(bottom = 4.dp)
-            .clickable(
-                indication = null,
-                interactionSource = interactionSource,
-                onClick = onFavoriteIcClick
-            )
+            .toggleable(
+                value = isFavorite,
+                onValueChange = { onClick() }
+            ),
+        contentAlignment = Alignment.Center
     ) {
         /** draw three rings */
         repeat(NUMBER_OF_RINGS) { index ->
@@ -89,21 +80,27 @@ fun AnimatedFavoriteIcon(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 7.dp),
-            targetState = state,
+            targetState = isFavorite,
             transitionSpec = {
                 ContentTransform(
-                    //if the incoming favorite is nope, (scale + slide), else show ripple and scale
-                    targetContentEnter = if (state == FavoriteState.NOPE) {
-                        scaleIn(spring()) + slideInHorizontally(spring(Spring.DampingRatioHighBouncy))
-                    } else {
+                    //TODO : Change the state to boolean
+
+                    /** If target State is yes then the enter animation should come with a ripple else it
+                     * should (scale + slide)
+                     * I faced a bug where I didn't compare the target state with the initial state and
+                     * this made the ripple trigger everytime on recomposition
+                     **/
+                    targetContentEnter = if (targetState != initialState && targetState) {
                         animateRipple(
                             coroutineScope = coroutineScope,
-                            density = density,
+                            density = screenDensity,
                             rippleRadius = rippleRadius,
                             rippleStrokeWidth = rippleStrokeWidth,
                             rippleAlpha = rippleAlpha
                         )
                         scaleIn(spring(Spring.DampingRatioMediumBouncy))
+                    } else {
+                        scaleIn(spring()) + slideInHorizontally(spring(Spring.DampingRatioHighBouncy))
                     },
                     initialContentExit = scaleOut(spring()),
                     sizeTransform = SizeTransform(clip = false)
@@ -111,7 +108,7 @@ fun AnimatedFavoriteIcon(
             }
         ) {
             Icon(
-                painter = painterResource(id = state.drawable),
+                painter = painterResource(id = if (isFavorite) IS_FAV_IC else IS_NOT_FAV_IC),
                 contentDescription = "Favorites Button",
                 tint = Color.Unspecified,
             )
@@ -132,9 +129,9 @@ fun AnimatedFavoriteIcon(
 private fun animateRipple(
     coroutineScope: CoroutineScope,
     density: Density,
-    rippleRadius: MutableList<MutableState<Float>>,
-    rippleStrokeWidth: MutableList<MutableState<Float>>,
-    rippleAlpha: MutableList<MutableState<Float>>
+    rippleRadius: List<MutableState<Float>>,
+    rippleStrokeWidth: List<MutableState<Float>>,
+    rippleAlpha: List<MutableState<Float>>
 ) {
     val targetRadius = with(density) { 20.dp.toPx() }
     val targetStrokeWidth = with(density) { (3).dp.toPx() }

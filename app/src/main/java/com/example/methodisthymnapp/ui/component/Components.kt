@@ -1,5 +1,6 @@
 package com.example.methodisthymnapp.ui.component
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,17 +21,17 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import com.example.methodisthymnapp.R
+import com.example.methodisthymnapp.database.HymnEntity
 
 @Composable
 fun HymnCard(
-    num: Int,
-    title: String,
-    body: String,
-    author: String,
-    favoriteState: FavoriteState,
-    onFavoriteIcClick: () -> Unit,
+    hymn: HymnEntity,
+    isFavorite: Boolean,
+    onFavoriteButtonToggle: () -> Unit,
     onCardClick: () -> Unit
 ) {
+    val (num, title, author, lyrics) = hymn
+
     Card(
         modifier = Modifier
             .height(112.dp)
@@ -82,7 +83,7 @@ fun HymnCard(
 
                 Text(
                     modifier = Modifier.paddingFromBaseline(top = 16.dp, bottom = 4.dp),
-                    text = body,
+                    text = lyrics,
                     style = MaterialTheme.typography.body2,
                     color = Color(0xFF7D7D7D),
                     overflow = TextOverflow.Ellipsis,
@@ -97,9 +98,9 @@ fun HymnCard(
                         modifier = Modifier.padding(top = 7.dp),
                         author = author
                     )
-                    AnimatedFavoriteIcon(
-                        state = favoriteState,
-                        onFavoriteIcClick = onFavoriteIcClick
+                    FavoriteToggleButton(
+                        isFavorite = isFavorite,
+                        onClick = onFavoriteButtonToggle
                     )
                 }
             }
@@ -116,6 +117,7 @@ fun paddHymnNum(num: Int): String {
     }
 }
 
+@SuppressLint("MissingColorAlphaChannel")
 @Composable
 fun AuthorTag(modifier: Modifier = Modifier, author: String) {
     val tagGreenLight = Color(0x6BE2BE).copy(alpha = 0.24f)
@@ -129,8 +131,7 @@ fun AuthorTag(modifier: Modifier = Modifier, author: String) {
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
-            modifier = Modifier
-                .align(Alignment.CenterVertically),
+            modifier = Modifier.align(Alignment.CenterVertically),
             text = author,
             fontSize = 10.sp,
             color = Color(0xFF50D1AA),

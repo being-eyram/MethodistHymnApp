@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
@@ -23,7 +22,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.example.methodisthymnapp.HymnApplication
-import com.example.methodisthymnapp.ui.component.*
+import com.example.methodisthymnapp.ui.component.HymnCard
+import com.example.methodisthymnapp.ui.component.MHAAppBar
+import com.example.methodisthymnapp.ui.component.OnBackPressed
+import com.example.methodisthymnapp.ui.component.Screen
 import com.example.methodisthymnapp.ui.screens.SearchScreen
 
 @Composable
@@ -55,22 +57,14 @@ fun HymnsScreen(
         ) {
 
             items(hymns) { hymn ->
-                val initState =
-                    if (hymn.isFavorite == 0) FavoriteState.NOPE else FavoriteState.YES
-                var favoriteState by rememberSaveable { mutableStateOf(initState) }
+                var favoriteState by remember { mutableStateOf(hymn.isFavorite != 0) }
 
                 HymnCard(
-                    num = hymn.id,
-                    title = hymn.title,
-                    body = hymn.lyrics,
-                    author = hymn.author,
-                    favoriteState = favoriteState,
-                    onFavoriteIcClick = {
-                        favoriteState = when (favoriteState) {
-                            FavoriteState.NOPE -> FavoriteState.YES
-                            FavoriteState.YES -> FavoriteState.NOPE
-                        }
-                        viewModel.updateFavoriteState(hymn.id, favoriteState.ordinal)
+                    hymn,
+                    isFavorite = favoriteState,
+                    onFavoriteButtonToggle = {
+                        favoriteState = !favoriteState
+                        viewModel.updateFavoriteState(hymn.id, favoriteState.compareTo(false))
                     },
                     onCardClick = {
                         cloud.id = hymn.id
