@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -61,7 +62,9 @@ fun FavoriteToggleButton(
             .padding(bottom = 4.dp)
             .toggleable(
                 value = isFavorite,
-                onValueChange = { onClick() }
+                onValueChange = { onClick() },
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
             ),
         contentAlignment = Alignment.Center
     ) {
