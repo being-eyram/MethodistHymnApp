@@ -35,7 +35,6 @@ fun SearchScreen(
     var search by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val searchFocusRequester = remember { FocusRequester() }
-    var readOnly by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
 
@@ -55,21 +54,17 @@ fun SearchScreen(
                     search = search,
                     onSearchTermChange = {
                         search = it
-                        viewModel.search(it)
+                        val searchIsHymnNumber = it.matches("""\d+""".toRegex())
+                        if (searchIsHymnNumber)
+                            viewModel.search(it.toInt())
+                        else
+                            viewModel.search(it)
                     },
-                    readOnly = readOnly,
                     keyboardActions = KeyboardActions(
-                        onSearch = {
-                            keyboardController?.hide()
-                            readOnly = !readOnly
-                        }
+                        onSearch = { keyboardController?.hide() }
                     ),
                     onClearClick = { search = emptyString },
                     onReturnClick = { navController.navigateUp() },
-                    onTextFieldClick = {
-                        if (readOnly) readOnly = false
-                        keyboardController?.show()
-                    }
                 )
 
                 SideEffect {
@@ -101,13 +96,6 @@ fun SearchScreen(
                             }
                         )
                         Spacer(Modifier.padding(top = 16.dp))
-
-//                        SideEffect {
-//                            if (listState) {
-//                                keyboardController?.hide()
-//                                readOnly = !readOnly
-//                            }
-//                        }
                     }
                 }
             }

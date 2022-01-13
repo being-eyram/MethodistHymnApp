@@ -36,10 +36,8 @@ fun SearchBox(
     modifier: Modifier = Modifier,
     placeholder: String = SEARCH,
     search: String = emptyString,
-    readOnly: Boolean,
     onSearchTermChange: (String) -> Unit,
     keyboardActions: KeyboardActions,
-    onTextFieldClick: () -> Unit,
     onReturnClick: () -> Unit,
     onClearClick: () -> Unit,
 ) {
@@ -48,13 +46,11 @@ fun SearchBox(
     SearchFieldLayout(
         modifier = modifier,
         search = search,
-        readOnly = readOnly,
         placeholder = { Text(placeholder, fontSize = 16.sp) },
         onSearchTermChange = onSearchTermChange,
         onClearClick = onClearClick,
         onReturnClick = onReturnClick,
         keyboardActions = keyboardActions,
-        onTextFieldClick = onTextFieldClick
     )
 
 }
@@ -63,11 +59,9 @@ fun SearchBox(
 fun SearchFieldLayout(
     modifier: Modifier,
     search: String,
-    readOnly: Boolean,
     placeholder: @Composable (() -> Unit)? = null,
     onSearchTermChange: (String) -> Unit,
     keyboardActions: KeyboardActions,
-    onTextFieldClick: () -> Unit,
     onClearClick: () -> Unit,
     onReturnClick: () -> Unit
 ) {
@@ -80,16 +74,10 @@ fun SearchFieldLayout(
         onValueChange = onSearchTermChange,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = keyboardActions,
-        readOnly = readOnly,
         singleLine = true,
         cursorBrush = cursorColor,
         decorationBox = @Composable { innerTextField ->
             Layout(
-                modifier = Modifier.clickable(
-                    interactionSource = MutableInteractionSource(),
-                    indication = null,
-                    onClick = onTextFieldClick
-                ),
                 content = {
                     IconBox(
                         modifier = Modifier.clickable(
