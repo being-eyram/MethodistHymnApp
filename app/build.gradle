@@ -69,6 +69,9 @@ dependencies {
     //Coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
+    //ConstraintLayout
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0-rc02"
+
     //Accompanist-SystemUiController
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
 

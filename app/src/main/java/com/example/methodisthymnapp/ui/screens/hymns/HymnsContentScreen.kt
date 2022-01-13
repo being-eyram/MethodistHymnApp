@@ -147,21 +147,25 @@ fun HymnContent(
     Column(
         Modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(start = 24.dp, end = 24.dp),
+            .verticalScroll(scrollState),
 
         ) {
         Text(
-            modifier = Modifier.paddingFromBaseline(28.dp),
+            modifier = Modifier
+                .paddingFromBaseline(32.dp)
+                .padding(horizontal = 16.dp),
             text = hymnTitle,
             textAlign = TextAlign.Center,
-            style = typography.h5.copy(fontSize = titleFontSize)
+            style = typography.h3
         )
 
         Text(
-            modifier = Modifier.paddingFromBaseline(56.dp),
+            modifier = Modifier
+                .paddingFromBaseline(48.dp)
+                .padding(start = 16.dp, end = 16.dp),
             text = hymnLyrics,
-            style = typography.body1.copy(fontSize = bodyFontSize)
+            textAlign = TextAlign.Start,
+            style = typography.body1
         )
 
         Spacer(modifier = Modifier.padding(bottom = 56.dp))

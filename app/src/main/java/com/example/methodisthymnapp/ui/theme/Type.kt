@@ -21,6 +21,13 @@ val eczarFontFamily = FontFamily(
 
 // Set of Material typography styles to start with
 val Typography = Typography(
+    body1 = TextStyle(
+        fontFamily = interFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        letterSpacing = 0.15.sp,
+        lineHeight = 24.sp
+    ),
     body2 = TextStyle(
         fontFamily = interFontFamily,
         fontWeight = FontWeight.Normal,
@@ -47,6 +54,14 @@ val Typography = Typography(
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
         letterSpacing = 0.15.sp
+    ),
+
+    h3 = TextStyle(
+        fontFamily = interFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 24.sp,
+        letterSpacing = 0.25.sp,
+        lineHeight = 32.sp
     )
     /* Other default text styles to override
     button = TextStyle(
