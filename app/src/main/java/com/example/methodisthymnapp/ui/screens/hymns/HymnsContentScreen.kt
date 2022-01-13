@@ -1,5 +1,6 @@
 package com.example.methodisthymnapp.ui.screens.hymns
 
+import android.content.Intent
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -11,6 +12,7 @@ import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -18,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
@@ -25,9 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.methodisthymnapp.R
+import com.example.methodisthymnapp.database.HymnEntity
 
 private val maxTitleFontSize = 50.sp
 private val maxLyricsFontSize = 40.sp
+private const val INTENT_TYPE = "text/plain"
 
 @Composable
 fun HymnContentScreen(
@@ -44,6 +49,7 @@ fun HymnContentScreen(
     var isTextSizeActionClicked: Boolean by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -57,12 +63,21 @@ fun HymnContentScreen(
             ContentAppBar(
                 title = getAppBarTitle(clickedHymnId),
                 onNavigationActionClick = { navController.navigateUp() },
-                onTextSizeActionClick = { isTextSizeActionClicked = !isTextSizeActionClicked }
+                onTextSizeActionClick = { isTextSizeActionClicked = !isTextSizeActionClicked },
+                onShareActionClick = {
+                    val sendIntent: Intent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, "This is my text to send.")
+                        type = INTENT_TYPE
+                    }
+
+                    val shareIntent = Intent.createChooser(sendIntent, null)
+                    context.startActivity(shareIntent)
+                }
             )
             clickedHymn.value?.let {
                 HymnContent(
-                    hymnTitle = it.title,
-                    hymnLyrics = it.lyrics,
+                    hymn = it,
                     titleFontSize = bodyTitleFontSize,
                     bodyFontSize = lyricsFontSize,
                     scrollState = scrollState
@@ -97,7 +112,8 @@ fun HymnContentScreen(
 fun ContentAppBar(
     title: String,
     onNavigationActionClick: () -> Unit,
-    onTextSizeActionClick: () -> Unit
+    onTextSizeActionClick: () -> Unit,
+    onShareActionClick: () -> Unit,
 ) {
     TopAppBar(
         modifier = Modifier
@@ -122,28 +138,38 @@ fun ContentAppBar(
                 text = title
             )
 
-            Icon(
-                //Try changing the resource to ic_textsize
-                painterResource(id = R.drawable.ic_canticles),
-                "Navigate Up",
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable(onClick = onTextSizeActionClick)
-                    .padding(16.dp)
-            )
+            Row(modifier = Modifier.align(Alignment.CenterEnd)) {
+                Icon(
+                    //Try changing the resource to ic_textsize
+                    painterResource(id = R.drawable.ic_canticles),
+                    "Navigate Up",
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(onClick = onTextSizeActionClick)
+                        .padding(16.dp, 16.dp , 12.dp, 16.dp)
+                )
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = "Share Hymn",
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(onClick = onShareActionClick)
+                        .padding(12.dp,16.dp,16.dp, 16.dp)
+                )
+            }
+
         }
     }
 }
 
 @Composable
 fun HymnContent(
-    hymnTitle: String,
-    hymnLyrics: String,
+    hymn: HymnEntity,
     titleFontSize: TextUnit,
     bodyFontSize: TextUnit,
     scrollState: ScrollState
 ) {
+    val (_, title, author, lyrics) = hymn
     Column(
         Modifier
             .fillMaxSize()
@@ -152,23 +178,35 @@ fun HymnContent(
         ) {
         Text(
             modifier = Modifier
+                .fillMaxWidth()
                 .paddingFromBaseline(32.dp)
                 .padding(horizontal = 16.dp),
-            text = hymnTitle,
+            text = title,
             textAlign = TextAlign.Center,
             style = typography.h3
         )
 
         Text(
             modifier = Modifier
+                .fillMaxWidth()
                 .paddingFromBaseline(48.dp)
                 .padding(start = 16.dp, end = 16.dp),
-            text = hymnLyrics,
+            text = lyrics,
             textAlign = TextAlign.Start,
             style = typography.body1
         )
 
-        Spacer(modifier = Modifier.padding(bottom = 56.dp))
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .paddingFromBaseline(24.dp)
+                .padding(start = 16.dp),
+            text = author,
+            textAlign = TextAlign.Left,
+            style = typography.caption
+        )
+
+        Spacer(modifier = Modifier.padding(bottom = 96.dp))
     }
 }
 

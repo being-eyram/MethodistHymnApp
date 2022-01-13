@@ -4,6 +4,7 @@ import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.methodisthymnapp.R
@@ -62,6 +63,14 @@ val Typography = Typography(
         fontSize = 24.sp,
         letterSpacing = 0.25.sp,
         lineHeight = 32.sp
+    ),
+
+    caption = TextStyle(
+        fontFamily = interFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 10.sp,
+        fontStyle = FontStyle.Italic,
+        letterSpacing = 0.4.sp,
     )
     /* Other default text styles to override
     button = TextStyle(
@@ -69,10 +78,5 @@ val Typography = Typography(
         fontWeight = FontWeight.W500,
         fontSize = 14.sp
     ),
-    caption = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp
-    )
     */
 )
