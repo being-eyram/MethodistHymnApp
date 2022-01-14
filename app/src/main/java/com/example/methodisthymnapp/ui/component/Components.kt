@@ -31,6 +31,9 @@ fun HymnCard(
     onFavoriteButtonToggle: () -> Unit,
     onCardClick: () -> Unit
 ) {
+    /**
+     * Remove the isFavorite and move it downwards without having to pass it as a parameter
+     */
     val (num, title, author, lyrics) = hymn
 
     Card(

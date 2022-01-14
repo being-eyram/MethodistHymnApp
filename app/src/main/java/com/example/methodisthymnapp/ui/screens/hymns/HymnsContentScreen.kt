@@ -179,7 +179,7 @@ fun HymnContent(
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .paddingFromBaseline(32.dp)
+                .paddingFromBaseline(48.dp)
                 .padding(horizontal = 16.dp),
             text = title,
             textAlign = TextAlign.Center,
@@ -199,14 +199,14 @@ fun HymnContent(
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .paddingFromBaseline(24.dp)
-                .padding(start = 16.dp),
+                .paddingFromBaseline(32.dp)
+                .padding(horizontal = 16.dp),
             text = author,
-            textAlign = TextAlign.Left,
+            textAlign = TextAlign.Center,
             style = typography.caption
         )
 
-        Spacer(modifier = Modifier.padding(bottom = 96.dp))
+        Spacer(modifier = Modifier.padding(bottom = 168.dp))
     }
 }
 
