@@ -12,7 +12,6 @@ import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -141,20 +140,20 @@ fun ContentAppBar(
             Row(modifier = Modifier.align(Alignment.CenterEnd)) {
                 Icon(
                     //Try changing the resource to ic_textsize
-                    painterResource(id = R.drawable.ic_canticles),
+                    painterResource(id = R.drawable.ic_text_size),
                     "Navigate Up",
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
                         .clickable(onClick = onTextSizeActionClick)
-                        .padding(16.dp, 16.dp , 12.dp, 16.dp)
+                        .padding(16.dp, 16.dp, 12.dp, 16.dp)
                 )
                 Icon(
-                    imageVector = Icons.Default.Share,
+                    painterResource(id = R.drawable.ic_share),
                     contentDescription = "Share Hymn",
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
                         .clickable(onClick = onShareActionClick)
-                        .padding(12.dp,16.dp,16.dp, 16.dp)
+                        .padding(12.dp, 16.dp, 16.dp, 16.dp)
                 )
             }
 
