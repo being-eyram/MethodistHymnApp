@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,7 +58,7 @@ fun HymnContentScreen(
                 isTextSizeActionClicked = false
             }
         }) {
-
+//scrollState.value
         Column(modifier = Modifier.fillMaxSize()) {
             ContentAppBar(
                 title = getAppBarTitle(clickedHymnId),
@@ -72,7 +73,8 @@ fun HymnContentScreen(
 
                     val shareIntent = Intent.createChooser(sendIntent, null)
                     context.startActivity(shareIntent)
-                }
+                },
+            elevation = if (scrollState.value > 1 ) 4.dp else 0.dp
             )
             clickedHymn.value?.let {
                 HymnContent(
@@ -110,6 +112,7 @@ fun HymnContentScreen(
 @Composable
 fun ContentAppBar(
     title: String,
+    elevation : Dp,
     onNavigationActionClick: () -> Unit,
     onTextSizeActionClick: () -> Unit,
     onShareActionClick: () -> Unit,
@@ -119,7 +122,8 @@ fun ContentAppBar(
             .fillMaxWidth()
             .height(56.dp),
         backgroundColor = Color.White,
-        elevation = 0.dp,
+        elevation = elevation,
+        contentPadding = PaddingValues(0.dp)
     ) {
         Box(Modifier.fillMaxSize()) {
             Icon(

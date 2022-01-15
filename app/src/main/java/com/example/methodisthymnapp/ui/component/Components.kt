@@ -153,7 +153,6 @@ fun MHAAppBar(
 ) {
     TopAppBar(
         backgroundColor = Color.White,
-        contentColor = Color(0xFF232323),
         elevation = elevation
     ) {
 
@@ -164,7 +163,7 @@ fun MHAAppBar(
         ) {
 
             Text(
-                modifier = Modifier.padding(start = 16.dp),
+                modifier = Modifier.padding(start = 12.dp),
                 text = "Methodist Hymn App",
                 style = MaterialTheme.typography.h1
             )
