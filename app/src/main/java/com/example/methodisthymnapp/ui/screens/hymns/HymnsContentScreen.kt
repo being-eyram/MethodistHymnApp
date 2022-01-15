@@ -54,11 +54,8 @@ fun HymnContentScreen(
     Box(modifier = Modifier
         .fillMaxSize()
         .clickable(indication = null, interactionSource = interactionSource) {
-            if (isTextSizeActionClicked) {
-                isTextSizeActionClicked = false
-            }
+            isTextSizeActionClicked = !isTextSizeActionClicked
         }) {
-//scrollState.value
         Column(modifier = Modifier.fillMaxSize()) {
             ContentAppBar(
                 title = getAppBarTitle(clickedHymnId),
@@ -74,7 +71,7 @@ fun HymnContentScreen(
                     val shareIntent = Intent.createChooser(sendIntent, null)
                     context.startActivity(shareIntent)
                 },
-            elevation = if (scrollState.value > 1 ) 4.dp else 0.dp
+                elevation = if (scrollState.value > 1) 4.dp else 0.dp
             )
             clickedHymn.value?.let {
                 HymnContent(
@@ -84,8 +81,6 @@ fun HymnContentScreen(
                     scrollState = scrollState
                 )
             }
-
-
         }
 
         if (scrollState.isScrollInProgress && isTextSizeActionClicked) {
@@ -112,7 +107,7 @@ fun HymnContentScreen(
 @Composable
 fun ContentAppBar(
     title: String,
-    elevation : Dp,
+    elevation: Dp,
     onNavigationActionClick: () -> Unit,
     onTextSizeActionClick: () -> Unit,
     onShareActionClick: () -> Unit,
