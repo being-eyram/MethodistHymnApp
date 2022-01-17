@@ -32,7 +32,7 @@ import com.example.methodisthymnapp.database.HymnEntity
 
 private val maxTitleFontSize = 50.sp
 private val maxLyricsFontSize = 40.sp
-private const val INTENT_TYPE = "text/plain"
+private const val INTENT_TYPE_TEXT = "text/plain"
 
 @Composable
 fun HymnContentScreen(
@@ -65,9 +65,8 @@ fun HymnContentScreen(
                     val sendIntent: Intent = Intent().apply {
                         action = Intent.ACTION_SEND
                         putExtra(Intent.EXTRA_TEXT, "This is my text to send.")
-                        type = INTENT_TYPE
+                        type = INTENT_TYPE_TEXT
                     }
-
                     val shareIntent = Intent.createChooser(sendIntent, null)
                     context.startActivity(shareIntent)
                 },
