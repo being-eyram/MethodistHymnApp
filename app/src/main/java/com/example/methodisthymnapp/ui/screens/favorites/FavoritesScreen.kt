@@ -8,25 +8,22 @@ import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.methodisthymnapp.R
 import com.example.methodisthymnapp.database.HymnEntity
 import com.example.methodisthymnapp.ui.component.AuthorTag
-import com.example.methodisthymnapp.ui.component.FavoriteToggleButton
 import com.example.methodisthymnapp.ui.component.paddHymnNum
-import com.example.methodisthymnapp.ui.theme.MHATheme
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -34,6 +31,7 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
 
     val favorites by viewModel.getFavorites().collectAsState(listOf())
 //Add a button to unfavorite all favorite items
+    // Use the delete icon for the delete favorite rather.
     Box(Modifier.fillMaxSize()) {
         LazyVerticalGrid(
             cells = GridCells.Adaptive(minSize = 168.dp),
@@ -44,12 +42,19 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+        /**
+         * Changed the Undo FavoriteIcon to a delete button until I
+         * change my mind.
+         *
+         * I'm thinking maybe I should hide the Undo Favorite Icon 🙂
+         * but that'll be after I learn how to do dialogs in Compose.
+         */
             items(favorites) { hymn ->
                 FavoriteItemCard(
                     hymn = hymn,
                     onCardClick = { },
-                    onFavoriteButtonToggle = {
-
+                    onRemoveFavoriteButtonClick = {
+                        viewModel.updateFavoriteState(hymn.id, 0)
                     }
                 )
             }
@@ -62,9 +67,9 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
 fun FavoriteItemCard(
     hymn: HymnEntity,
     onCardClick: () -> Unit,
-    onFavoriteButtonToggle: () -> Unit,
+    onRemoveFavoriteButtonClick: () -> Unit,
 ) {
-    val (num, title, author, _, isFavorite) = hymn
+    val (num, title, author) = hymn
 
     Card(
         modifier = Modifier
@@ -96,10 +101,21 @@ fun FavoriteItemCard(
                     style = MaterialTheme.typography.h2
                 )
 
-                FavoriteToggleButton(
-                    isFavorite = isFavorite != 0,
-                    onClick = onFavoriteButtonToggle
-                )
+                IconButton(
+                    modifier = Modifier.size(48.dp, 40.dp),
+                    onClick = onRemoveFavoriteButtonClick
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_delete),
+                        contentDescription = null,
+                        tint = Color.Unspecified
+                    )
+                }
+
+//                FavoriteToggleButton(
+//                    isFavorite = isFavorite,
+//                    onClick = onFavoriteButtonToggle
+//                )
             }
 
             Text(
@@ -119,20 +135,20 @@ fun FavoriteItemCard(
     }
 }
 
-@Preview
-@Composable
-fun FavoriteItemCardPreview() {
-    MHATheme {
-        FavoriteItemCard(
-            HymnEntity(
-                0,
-                "On my way to become big",
-                "Eyram Michael",
-                "There is no lyrics bruh",
-                1
-            ),
-            onCardClick = {},
-            onFavoriteButtonToggle = {}
-        )
-    }
-}
+//@Preview
+//@Composable
+//fun FavoriteItemCardPreview() {
+//    MHATheme {
+//        FavoriteItemCard(
+//            HymnEntity(
+//                0,
+//                "On my way to become big",
+//                "Eyram Michael",
+//                "There is no lyrics bruh",
+//                1
+//            ),
+//            onCardClick = {},
+//            onFavoriteButtonToggle = {}
+//        )
+//    }
+//}
