@@ -1,11 +1,11 @@
 package com.example.methodisthymnapp.ui.component
 
-import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,13 +42,12 @@ fun MethodistHymnApp() {
 
 
 fun NavHostController.navigateTo(destination: String) {
-    val existingBackStackEntry = backQueue.find { it.destination.route == destination }
-    if (existingBackStackEntry != null) {
-        backQueue.remove(existingBackStackEntry)
-        backQueue.addLast(existingBackStackEntry)
-    }
     navigate(destination) {
+        restoreState = true
         launchSingleTop = true
+        popUpTo(graph.findStartDestination().id) {
+            saveState = true
+        }
     }
 }
 
@@ -63,40 +62,19 @@ fun MHANavGraph(navController: NavHostController) {
 
         composable(route = Screen.Canticles.route) {
             CanticlesScreen()
-            OnBackPressed(navController)
         }
 
         composable(route = Screen.Favorites.route) {
             FavoritesScreen(hiltViewModel())
-            OnBackPressed(navController)
         }
     }
 }
-
-//Custom back press logic that handles backStack Navigation
-@Composable
-fun OnBackPressed(navController: NavHostController) {
-    val backQueue = navController.backQueue
-    val backStackCount = backQueue.filter { backStackEntry ->
-        backStackEntry.destination.route != null
-    }.count()
-    if (backStackCount > 1) {
-        BackHandler {
-            backQueue.removeLast()
-            val topOfStack = backQueue.last().destination.route
-            navController.navigate(topOfStack!!) {
-                launchSingleTop = true
-            }
-        }
-    }
-}
-
 
 sealed class Screen(val route: String, @DrawableRes val icon: Int) {
     object Canticles : Screen("canticles", R.drawable.ic_canticles)
     object Favorites : Screen("favorites", R.drawable.ic_heartfilled)
-    object HymnsList : Screen("home", R.drawable.ic_hymns) {
-        fun createRoute(route: String) = "hymns/$route"
+    object HymnsList : Screen("hymns", R.drawable.ic_hymns) {
+        fun createRoute(route: String) = "Hymns/$route"
     }
 }
 

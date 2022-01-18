@@ -12,19 +12,18 @@ import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.example.methodisthymnapp.HymnApplication
+import androidx.navigation.navArgument
 import com.example.methodisthymnapp.ui.component.HymnCard
 import com.example.methodisthymnapp.ui.component.MHAAppBar
-import com.example.methodisthymnapp.ui.component.OnBackPressed
 import com.example.methodisthymnapp.ui.component.Screen
 import com.example.methodisthymnapp.ui.screens.SearchScreen
 
@@ -33,11 +32,8 @@ fun HymnsScreen(
     viewModel: HymnsListViewModel = viewModel(),
     navController: NavHostController,
 ) {
-    val hymns by viewModel.getAllHymns().collectAsState(initial = listOf())
+    val hymns by viewModel.getAllHymns().collectAsState(listOf())
     val listState = rememberLazyListState()
-    val cloud = (LocalContext.current.applicationContext as HymnApplication).cloud
-
-
 
     Scaffold(
         topBar = {
@@ -67,8 +63,7 @@ fun HymnsScreen(
                         viewModel.updateFavoriteState(hymn.id, favoriteState.compareTo(false))
                     },
                     onCardClick = {
-                        cloud.id = hymn.id
-                        navController.navigate(Screen.HymnsList.createRoute("details"))
+                        navController.navigate(Screen.HymnsList.createRoute("$HYMNS_CONTENT_KEY/${hymn.id}"))
                     }
                 )
                 Spacer(Modifier.padding(top = 16.dp))
@@ -91,25 +86,27 @@ val LazyListState.elevation: Dp
 
 fun NavGraphBuilder.hymnsGraph(navController: NavHostController) {
     navigation(
-        startDestination = Screen.HymnsList.createRoute("hymns"),
+        startDestination = Screen.HymnsList.createRoute("HymnsList"),
         route = Screen.HymnsList.route
     ) {
 
-        composable(route = Screen.HymnsList.createRoute("hymns")) {
+        composable(route = Screen.HymnsList.createRoute("HymnsList")) {
             HymnsScreen(hiltViewModel(), navController)
-            OnBackPressed(navController)
         }
 
-        composable(route = Screen.HymnsList.createRoute("details")) {
-            val cloud = (LocalContext.current.applicationContext as HymnApplication).cloud
-//            val clickedHymn = backStackEntry.arguments?.getInt("clickedHymn")!!
-            val clickedHymn = cloud.id
-            HymnContentScreen(navController, clickedHymn, hiltViewModel())
-            OnBackPressed(navController)
+        composable(
+            route = Screen.HymnsList.createRoute("$HYMNS_CONTENT_KEY/{$CLICKED_HYMN_ID}"),
+            arguments = listOf(navArgument(CLICKED_HYMN_ID) { type = NavType.IntType })
+        ) {
+            val clickedHymnId = it.arguments?.getInt(CLICKED_HYMN_ID)!!
+            HymnContentScreen(navController, clickedHymnId, hiltViewModel())
         }
 
-        composable(route = Screen.HymnsList.createRoute("search")) {
+        composable(route = Screen.HymnsList.createRoute("Search")) {
             SearchScreen(navController, hiltViewModel())
         }
     }
 }
+
+const val CLICKED_HYMN_ID = "clickedHymnId"
+const val HYMNS_CONTENT_KEY = "HymnsContent"

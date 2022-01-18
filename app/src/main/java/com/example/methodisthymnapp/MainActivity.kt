@@ -9,8 +9,6 @@ import androidx.compose.ui.graphics.Color
 import com.example.methodisthymnapp.ui.component.MethodistHymnApp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -27,10 +25,10 @@ class MainActivity : ComponentActivity() {
                     color = Color.Transparent,
                     darkIcons = useDarkColor
                 )
-                systemUiController.setNavigationBarColor(
-                    color = Color.Transparent,
-                    darkIcons = useDarkColor
-                )
+//                systemUiController.setNavigationBarColor(
+//                    color = Color.Transparent,
+//                    darkIcons = useDarkColor
+//                )
             }
 
             MethodistHymnApp()
@@ -38,8 +36,4 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Singleton
-class Cloud @Inject constructor (){
-    var id : Int = 0
-}
 
