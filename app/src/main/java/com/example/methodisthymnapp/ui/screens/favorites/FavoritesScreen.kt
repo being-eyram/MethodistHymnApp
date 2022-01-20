@@ -1,21 +1,22 @@
 package com.example.methodisthymnapp.ui.screens.favorites
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,12 +25,14 @@ import com.example.methodisthymnapp.R
 import com.example.methodisthymnapp.database.HymnEntity
 import com.example.methodisthymnapp.ui.component.AuthorTag
 import com.example.methodisthymnapp.ui.component.paddHymnNum
+import com.example.methodisthymnapp.ui.theme.MHATheme
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
 
     val favorites by viewModel.getFavorites().collectAsState(listOf())
+
 //Add a button to unfavorite all favorite items
     // Use the delete icon for the delete favorite rather.
     Box(Modifier.fillMaxSize()) {
@@ -42,21 +45,26 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-        /**
-         * Changed the Undo FavoriteIcon to a delete button until I
-         * change my mind.
-         *
-         * I'm thinking maybe I should hide the Undo Favorite Icon 🙂
-         * but that'll be after I learn how to do dialogs in Compose.
-         */
-            items(favorites) { hymn ->
+
+            val selectedCardMap = mutableMapOf<Int, MutableState<Boolean>>()
+            itemsIndexed(favorites) { index, hymn ->
+                selectedCardMap[index] = remember { mutableStateOf(false) }
                 FavoriteItemCard(
                     hymn = hymn,
-                    onCardClick = { },
-                    onRemoveFavoriteButtonClick = {
-                        viewModel.updateFavoriteState(hymn.id, 0)
-                    }
+                    isSelected = selectedCardMap[index]?.value!!,
+                    onCardClick = {
+                        val count = selectedCardMap.count { (it.value).value }
+                        if (count > 0) {
+                            selectedCardMap[index]?.value = !selectedCardMap[index]?.value!!
+                        }
+                        Log.i("SELECTED_COUNT", count.toString())
+                    },
+                    onCheckMarkClick = {},
+                    onLongPress = {
+                        selectedCardMap[index]?.value = !selectedCardMap[index]?.value!!
+                    },
                 )
+
             }
         }
     }
@@ -66,8 +74,10 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
 @Composable
 fun FavoriteItemCard(
     hymn: HymnEntity,
+    isSelected: Boolean,
     onCardClick: () -> Unit,
-    onRemoveFavoriteButtonClick: () -> Unit,
+    onCheckMarkClick: () -> Unit,
+    onLongPress: () -> Unit
 ) {
     val (num, title, author) = hymn
 
@@ -75,7 +85,13 @@ fun FavoriteItemCard(
         modifier = Modifier
             .height(112.dp)
             .width(168.dp)
-            .clickable(onClick = onCardClick),
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { onCardClick() },
+                    onLongPress = { onLongPress() },
+                )
+                //try do a detect drag gesture feature like selection on an iphone.
+            },
         elevation = 0.dp,
         border = BorderStroke(width = Dp.Hairline, color = Color.Gray),
         shape = RoundedCornerShape(4.dp)
@@ -100,22 +116,18 @@ fun FavoriteItemCard(
                     color = Color(0xFF232323),
                     style = MaterialTheme.typography.h2
                 )
-
-                IconButton(
-                    modifier = Modifier.size(48.dp, 40.dp),
-                    onClick = onRemoveFavoriteButtonClick
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_delete),
-                        contentDescription = null,
-                        tint = Color.Unspecified
-                    )
+                if (isSelected) {
+                    IconButton(
+                        modifier = Modifier.size(48.dp, 40.dp),
+                        onClick = onCheckMarkClick
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_checkmark),
+                            contentDescription = null,
+                            tint = Color(0xFF50D1AA)
+                        )
+                    }
                 }
-
-//                FavoriteToggleButton(
-//                    isFavorite = isFavorite,
-//                    onClick = onFavoriteButtonToggle
-//                )
             }
 
             Text(
@@ -135,20 +147,23 @@ fun FavoriteItemCard(
     }
 }
 
-//@Preview
-//@Composable
-//fun FavoriteItemCardPreview() {
-//    MHATheme {
-//        FavoriteItemCard(
-//            HymnEntity(
-//                0,
-//                "On my way to become big",
-//                "Eyram Michael",
-//                "There is no lyrics bruh",
-//                1
-//            ),
-//            onCardClick = {},
-//            onFavoriteButtonToggle = {}
-//        )
-//    }
-//}
+
+@Preview
+@Composable
+fun FavoriteItemCardPreview() {
+    MHATheme {
+        FavoriteItemCard(
+            HymnEntity(
+                0,
+                "On my way to become big",
+                "Eyram Michael",
+                "There is no lyrics bruh",
+                1
+            ),
+            isSelected = false,
+            onCardClick = {},
+            onLongPress = {},
+            onCheckMarkClick = {},
+        )
+    }
+}
