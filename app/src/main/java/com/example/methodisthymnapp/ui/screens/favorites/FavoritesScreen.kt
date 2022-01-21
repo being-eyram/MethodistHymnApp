@@ -45,12 +45,13 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
             ) {
                 TopAppBar(
                     title = { Text("$selectedCount") },
+                    backgroundColor = MaterialTheme.colors.background,
                     navigationIcon = {
                         IconButton(onClick = {}) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_return),
                                 contentDescription = null,
-                                tint = Color.Unspecified
+                                tint = MaterialTheme.colors.onBackground
                             )
                         }
                     },
@@ -59,7 +60,7 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_delete),
                                 contentDescription = null,
-                                tint = Color.Unspecified
+                                tint = MaterialTheme.colors.onBackground
                             )
                         }
                     }
@@ -89,7 +90,7 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
                     onCardClick = {
                         if (selectedCount > 0) {
                             selectedCardMap[index]?.value = !selectedCardMap[index]?.value!!
-                        }else {
+                        } else {
                             // add navigation logic to navigate to hymn.
                         }
                     },
@@ -149,7 +150,7 @@ fun FavoriteItemCard(
                         .width(45.dp)
                         .paddingFromBaseline(27.dp),
                     text = paddHymnNum(num),
-                    color = Color(0xFF232323),
+                    color = MaterialTheme.colors.onBackground,
                     style = MaterialTheme.typography.h2
                 )
                 if (isSelected) {

@@ -152,7 +152,7 @@ fun MHAAppBar(
     onSearchActionClick: () -> Unit,
 ) {
     TopAppBar(
-        backgroundColor = Color.White,
+        backgroundColor = MaterialTheme.colors.background,
         elevation = elevation
     ) {
 
@@ -165,13 +165,15 @@ fun MHAAppBar(
             Text(
                 modifier = Modifier.padding(start = 12.dp),
                 text = "Methodist Hymn App",
-                style = MaterialTheme.typography.h1
+                style = MaterialTheme.typography.h1,
+                color = MaterialTheme.colors.onBackground
             )
 
             IconButton(onClick = onSearchActionClick) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_search),
-                    contentDescription = "Search Hymns Action"
+                    contentDescription = "Search Hymns Action",
+                    tint = MaterialTheme.colors.onBackground
                 )
             }
         }
@@ -194,8 +196,8 @@ fun MHABottomNavBar(
 ) {
     BottomNavigation(
         Modifier.height(56.dp),
-        backgroundColor = Color.White,
-        contentColor = contentColorFor(backgroundColor = Color.White),
+        backgroundColor = MaterialTheme.colors.background,
+        contentColor = MaterialTheme.colors.onBackground,
         elevation = 8.dp
     ) {
         bottomNavScreens.forEach { screen ->

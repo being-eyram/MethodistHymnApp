@@ -115,14 +115,15 @@ fun ContentAppBar(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
-        backgroundColor = Color.White,
+        backgroundColor = MaterialTheme.colors.background,
         elevation = elevation,
         contentPadding = PaddingValues(0.dp)
     ) {
         Box(Modifier.fillMaxSize()) {
             Icon(
                 Icons.Default.ArrowBack,
-                "Navigate Up",
+                contentDescription = "Navigate Up",
+                tint = MaterialTheme.colors.onBackground ,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .clip(RoundedCornerShape(12.dp))
@@ -132,14 +133,16 @@ fun ContentAppBar(
 
             Text(
                 modifier = Modifier.align(Alignment.Center),
-                text = title
+                text = title,
+                color = MaterialTheme.colors.onBackground
             )
 
             Row(modifier = Modifier.align(Alignment.CenterEnd)) {
                 Icon(
                     //Try changing the resource to ic_textsize
                     painterResource(id = R.drawable.ic_text_size),
-                    "Navigate Up",
+                    contentDescription = "Change text size",
+                    tint = MaterialTheme.colors.onBackground,
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
                         .clickable(onClick = onTextSizeActionClick)
@@ -148,6 +151,7 @@ fun ContentAppBar(
                 Icon(
                     painterResource(id = R.drawable.ic_share),
                     contentDescription = "Share Hymn",
+                    tint = MaterialTheme.colors.onBackground,
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
                         .clickable(onClick = onShareActionClick)
