@@ -32,34 +32,42 @@ import com.example.methodisthymnapp.ui.theme.MHATheme
 fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
 
     val favorites by viewModel.getFavorites().collectAsState(listOf())
+    val selectedCardMap = mutableMapOf<Int, MutableState<Boolean>>()
+    var selectedCount by remember { mutableStateOf(0) }
 
-//Add a button to unfavorite all favorite items
-    // Use the delete icon for the delete favorite rather.
-    Box(Modifier.fillMaxSize()) {
+//    if (selectedCount  > 1){
+//        Log.i("Count", "Greater ")
+//    }
+
+    Scaffold(
+
+    ) {
+
         LazyVerticalGrid(
             cells = GridCells.Adaptive(minSize = 168.dp),
-            contentPadding = PaddingValues(
-                horizontal = 8.dp,
-                vertical = 16.dp
-            ),
+            contentPadding = PaddingValues(8.dp, 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
-            val selectedCardMap = mutableMapOf<Int, MutableState<Boolean>>()
             itemsIndexed(favorites) { index, hymn ->
                 selectedCardMap[index] = remember { mutableStateOf(false) }
+
+                SideEffect {
+                    selectedCount = selectedCardMap.count { (it.value).value }
+                    Log.i("Count", "$selectedCount")
+                }
                 FavoriteItemCard(
                     hymn = hymn,
                     isSelected = selectedCardMap[index]?.value!!,
                     onCardClick = {
-                        val count = selectedCardMap.count { (it.value).value }
-                        if (count > 0) {
+                        if (selectedCount > 0) {
                             selectedCardMap[index]?.value = !selectedCardMap[index]?.value!!
                         }
-                        Log.i("SELECTED_COUNT", count.toString())
                     },
-                    onCheckMarkClick = {},
+                    onCheckMarkClick = {
+                        selectedCardMap[index]?.value = !selectedCardMap[index]?.value!!
+                    },
                     onLongPress = {
                         selectedCardMap[index]?.value = !selectedCardMap[index]?.value!!
                     },
