@@ -1,6 +1,6 @@
 package com.example.methodisthymnapp.ui.screens.favorites
 
-import android.util.Log
+import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -27,7 +27,8 @@ import com.example.methodisthymnapp.ui.component.AuthorTag
 import com.example.methodisthymnapp.ui.component.paddHymnNum
 import com.example.methodisthymnapp.ui.theme.MHATheme
 
-@OptIn(ExperimentalFoundationApi::class)
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
 
@@ -35,11 +36,36 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
     val selectedCardMap = mutableMapOf<Int, MutableState<Boolean>>()
     var selectedCount by remember { mutableStateOf(0) }
 
-//    if (selectedCount  > 1){
-//        Log.i("Count", "Greater ")
-//    }
-
     Scaffold(
+        topBar = {
+            AnimatedVisibility(
+                visible = selectedCount > 0,
+                enter = scaleIn() + fadeIn(),
+                exit = scaleOut() + fadeOut()
+            ) {
+                TopAppBar(
+                    title = { Text("$selectedCount") },
+                    navigationIcon = {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_return),
+                                contentDescription = null,
+                                tint = Color.Unspecified
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_delete),
+                                contentDescription = null,
+                                tint = Color.Unspecified
+                            )
+                        }
+                    }
+                )
+            }
+        }
 
     ) {
 
@@ -54,8 +80,8 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
                 selectedCardMap[index] = remember { mutableStateOf(false) }
 
                 SideEffect {
-                    selectedCount = selectedCardMap.count { (it.value).value }
-                    Log.i("Count", "$selectedCount")
+                    //Count all selected hymns on recomposition
+                    selectedCount = selectedCardMap.count { mapEntry -> (mapEntry.value).value }
                 }
                 FavoriteItemCard(
                     hymn = hymn,
@@ -63,6 +89,8 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
                     onCardClick = {
                         if (selectedCount > 0) {
                             selectedCardMap[index]?.value = !selectedCardMap[index]?.value!!
+                        }else {
+                            // add navigation logic to navigate to hymn.
                         }
                     },
                     onCheckMarkClick = {
