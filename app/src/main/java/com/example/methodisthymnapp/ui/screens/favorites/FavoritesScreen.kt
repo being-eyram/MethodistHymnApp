@@ -1,5 +1,6 @@
 package com.example.methodisthymnapp.ui.screens.favorites
 
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -33,46 +34,25 @@ import com.example.methodisthymnapp.ui.theme.MHATheme
 fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
 
     val favorites by viewModel.getFavorites().collectAsState(listOf())
-    val selectedCardMap =  mutableMapOf<Int, Boolean>()
+    val selectedCardMap = mutableMapOf<Int, Boolean>()
     var selectedCount by remember { mutableStateOf(0) }
 
     Scaffold(
         topBar = {
-            AnimatedVisibility(
-                visible = selectedCount > 0,
-                enter = scaleIn() + fadeIn(),
-                exit = fadeOut() + scaleOut(),
-            ) {
-                TopAppBar(
-                    title = { Text("$selectedCount") },
-                    backgroundColor = MaterialTheme.colors.background,
-                    navigationIcon = {
-                        IconButton(onClick = {}) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_return),
-                                contentDescription = null,
-                                tint = MaterialTheme.colors.onBackground
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = {
-                            // delete Items using their Ids
-                            val deleteIndices = selectedCardMap.filter { entry -> entry.value}.keys
-                            deleteIndices.forEach { viewModel.updateFavoriteState(it, 0) }
-                            selectedCardMap.clear()
-                        }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_delete),
-                                contentDescription = null,
-                                tint = MaterialTheme.colors.onBackground
-                            )
-                        }
-                    }
-                )
-            }
+            MultiSelectAppBar(
+                selectedCount = selectedCount,
+                selectedCardMap = selectedCardMap,
+                onDeleteClick = {
+                    // delete Items using their Ids
+                    val deleteIndices = selectedCardMap.filter { entry -> entry.value }.keys
+                    deleteIndices.forEach { viewModel.updateFavoriteState(it, 0) }
+                    selectedCardMap.clear()
+                    selectedCount = 0
+//                    Log.i("Selected_Count", selectedCount.toString())
+//                    //from here try to update the selected count as well
+                }
+            )
         }
-
     ) {
         LazyVerticalGrid(
             cells = GridCells.Adaptive(minSize = 168.dp),
@@ -82,35 +62,37 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
         ) {
 
             items(favorites) { hymn ->
-                //Map the Id of the hymn to whether it is selected truthValue
-
-                    key(hymn.id) {
-                        var isSelected by remember { mutableStateOf(false) }
-                        selectedCardMap[hymn.id] = isSelected
-
-                        FavoriteItemCard(
-                            hymn = hymn,
-                            isSelected = isSelected,
-                            onCardClick = {
-                                if (selectedCount > 0) {
-                                    isSelected = !isSelected
-                                    selectedCardMap[hymn.id] = isSelected
-                                }
-                                //else { // add navigation logic to navigate to hymn. }
-                            },
-                            onCheckMarkClick = {
+                /**
+                 * It seems to me that because of the key is [isSelected] is generated
+                 * for each hymn in the favorites list.
+                 */
+                key(hymn.id) {
+                    var isSelected by remember { mutableStateOf(false) }
+                    //Map the Id of the hymn to whether it is selected truthValue
+                    selectedCardMap[hymn.id] = isSelected
+                    Log.i("IS_SELECTED", "${selectedCardMap.size}")
+                    FavoriteItemCard(
+                        hymn = hymn,
+                        isSelected = isSelected,
+                        onCardClick = {
+                            if (selectedCount > 0) {
                                 isSelected = !isSelected
                                 selectedCardMap[hymn.id] = isSelected
-                            },
-                            onLongPress = {
-                                isSelected = !isSelected
-                                selectedCardMap[hymn.id] = isSelected
-                            },
-                        )
+                            }
+                            //else { // add navigation logic to navigate to hymn. }
+                        },
+                        onCheckMarkClick = {
+                            isSelected = !isSelected
+                            selectedCardMap[hymn.id] = isSelected
+                        },
+                        onLongPress = {
+                            isSelected = !isSelected
+                            selectedCardMap[hymn.id] = isSelected
+                        },
+                    )
+                    SideEffect {
+                        selectedCount = selectedCardMap.count { it.value }
                     }
-
-                SideEffect {
-                    selectedCount = selectedCardMap.count { it.value }
                 }
             }
         }
@@ -191,6 +173,43 @@ fun FavoriteItemCard(
                 author = author
             )
         }
+    }
+}
+
+@ExperimentalAnimationApi
+@Composable
+fun MultiSelectAppBar(
+    selectedCount: Int,
+    selectedCardMap: MutableMap<Int, Boolean>,
+    onDeleteClick: () -> Unit
+) {
+    AnimatedVisibility(
+        visible = selectedCount > 0,
+        enter = scaleIn() + fadeIn(),
+        exit = fadeOut() + scaleOut(),
+    ) {
+        TopAppBar(
+            title = { Text("$selectedCount") },
+            backgroundColor = MaterialTheme.colors.background,
+            navigationIcon = {
+                IconButton(onClick = {}) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_return),
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.onBackground
+                    )
+                }
+            },
+            actions = {
+                IconButton(onClick = onDeleteClick) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_delete),
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.onBackground
+                    )
+                }
+            }
+        )
     }
 }
 
