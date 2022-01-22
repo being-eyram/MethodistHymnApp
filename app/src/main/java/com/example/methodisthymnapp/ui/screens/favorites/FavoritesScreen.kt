@@ -1,6 +1,5 @@
 package com.example.methodisthymnapp.ui.screens.favorites
 
-import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -29,7 +28,8 @@ import com.example.methodisthymnapp.ui.component.paddHymnNum
 import com.example.methodisthymnapp.ui.theme.MHATheme
 
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
 
@@ -43,13 +43,11 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
                 selectedCount = selectedCount,
                 selectedCardMap = selectedCardMap,
                 onDeleteClick = {
-                    // delete Items using their Ids
-                    val deleteIndices = selectedCardMap.filter { entry -> entry.value }.keys
-                    deleteIndices.forEach { viewModel.updateFavoriteState(it, 0) }
+                    // Unfavourite Items using their Ids if selected
+                    val idsToUnfavorite = selectedCardMap.filter { id -> id.value }.keys
+                    idsToUnfavorite.forEach { viewModel.updateFavoriteState(it, 0) }
                     selectedCardMap.clear()
                     selectedCount = 0
-//                    Log.i("Selected_Count", selectedCount.toString())
-//                    //from here try to update the selected count as well
                 }
             )
         }
@@ -68,29 +66,23 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
                  */
                 key(hymn.id) {
                     var isSelected by remember { mutableStateOf(false) }
-                    //Map the Id of the hymn to whether it is selected truthValue
+                    //store in a Map the Id of the hymn to it's selection truthValue
                     selectedCardMap[hymn.id] = isSelected
-                    Log.i("IS_SELECTED", "${selectedCardMap.size}")
+
                     FavoriteItemCard(
                         hymn = hymn,
                         isSelected = isSelected,
                         onCardClick = {
                             if (selectedCount > 0) {
                                 isSelected = !isSelected
-                                selectedCardMap[hymn.id] = isSelected
                             }
                             //else { // add navigation logic to navigate to hymn. }
                         },
-                        onCheckMarkClick = {
-                            isSelected = !isSelected
-                            selectedCardMap[hymn.id] = isSelected
-                        },
-                        onLongPress = {
-                            isSelected = !isSelected
-                            selectedCardMap[hymn.id] = isSelected
-                        },
+                        onCheckMarkClick = { isSelected = !isSelected },
+                        onLongPress = { isSelected = !isSelected },
                     )
                     SideEffect {
+                        selectedCardMap[hymn.id] = isSelected
                         selectedCount = selectedCardMap.count { it.value }
                     }
                 }
@@ -98,7 +90,6 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
         }
     }
 }
-
 
 @Composable
 fun FavoriteItemCard(
@@ -176,7 +167,7 @@ fun FavoriteItemCard(
     }
 }
 
-@ExperimentalAnimationApi
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MultiSelectAppBar(
     selectedCount: Int,
