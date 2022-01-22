@@ -7,7 +7,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -33,7 +33,7 @@ import com.example.methodisthymnapp.ui.theme.MHATheme
 fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
 
     val favorites by viewModel.getFavorites().collectAsState(listOf())
-    val selectedCardMap = mutableMapOf<Int, MutableState<Boolean>>()
+    val selectedCardMap =  mutableMapOf<Int, Boolean>()
     var selectedCount by remember { mutableStateOf(0) }
 
     Scaffold(
@@ -41,7 +41,7 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
             AnimatedVisibility(
                 visible = selectedCount > 0,
                 enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut()
+                exit = fadeOut() + scaleOut(),
             ) {
                 TopAppBar(
                     title = { Text("$selectedCount") },
@@ -56,7 +56,12 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
                         }
                     },
                     actions = {
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = {
+                            // delete Items using their Ids
+                            val deleteIndices = selectedCardMap.filter { entry -> entry.value}.keys
+                            deleteIndices.forEach { viewModel.updateFavoriteState(it, 0) }
+                            selectedCardMap.clear()
+                        }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_delete),
                                 contentDescription = null,
@@ -69,7 +74,6 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
         }
 
     ) {
-
         LazyVerticalGrid(
             cells = GridCells.Adaptive(minSize = 168.dp),
             contentPadding = PaddingValues(8.dp, 16.dp),
@@ -77,31 +81,37 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
-            itemsIndexed(favorites) { index, hymn ->
-                selectedCardMap[index] = remember { mutableStateOf(false) }
+            items(favorites) { hymn ->
+                //Map the Id of the hymn to whether it is selected truthValue
+
+                    key(hymn.id) {
+                        var isSelected by remember { mutableStateOf(false) }
+                        selectedCardMap[hymn.id] = isSelected
+
+                        FavoriteItemCard(
+                            hymn = hymn,
+                            isSelected = isSelected,
+                            onCardClick = {
+                                if (selectedCount > 0) {
+                                    isSelected = !isSelected
+                                    selectedCardMap[hymn.id] = isSelected
+                                }
+                                //else { // add navigation logic to navigate to hymn. }
+                            },
+                            onCheckMarkClick = {
+                                isSelected = !isSelected
+                                selectedCardMap[hymn.id] = isSelected
+                            },
+                            onLongPress = {
+                                isSelected = !isSelected
+                                selectedCardMap[hymn.id] = isSelected
+                            },
+                        )
+                    }
 
                 SideEffect {
-                    //Count all selected hymns on recomposition
-                    selectedCount = selectedCardMap.count { mapEntry -> (mapEntry.value).value }
+                    selectedCount = selectedCardMap.count { it.value }
                 }
-                FavoriteItemCard(
-                    hymn = hymn,
-                    isSelected = selectedCardMap[index]?.value!!,
-                    onCardClick = {
-                        if (selectedCount > 0) {
-                            selectedCardMap[index]?.value = !selectedCardMap[index]?.value!!
-                        } else {
-                            // add navigation logic to navigate to hymn.
-                        }
-                    },
-                    onCheckMarkClick = {
-                        selectedCardMap[index]?.value = !selectedCardMap[index]?.value!!
-                    },
-                    onLongPress = {
-                        selectedCardMap[index]?.value = !selectedCardMap[index]?.value!!
-                    },
-                )
-
             }
         }
     }
