@@ -8,6 +8,7 @@ import com.example.methodisthymnapp.database.HymnEntity
 import com.example.methodisthymnapp.reposiitory.MHARepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -19,7 +20,7 @@ class HymnsListViewModel @Inject constructor(private val repository: MHAReposito
     val searchResult: LiveData<List<HymnEntity>>
         get() = _searchResult
 
-    fun getAllHymns() = repository.allHymns()
+    fun getAllHymns() = repository.allHymns().buffer()
 
     fun search(query: String) {
         viewModelScope.launch {

@@ -1,5 +1,6 @@
 package com.example.methodisthymnapp.ui.screens.favorites
 
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -28,7 +29,6 @@ import com.example.methodisthymnapp.ui.component.paddHymnNum
 import com.example.methodisthymnapp.ui.theme.MHATheme
 
 
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
@@ -36,12 +36,17 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
     val favorites by viewModel.getFavorites().collectAsState(listOf())
     val selectedCardMap = mutableMapOf<Int, Boolean>()
     var selectedCount by remember { mutableStateOf(0) }
+    var isReturnClick by remember {mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             MultiSelectAppBar(
                 selectedCount = selectedCount,
-                selectedCardMap = selectedCardMap,
+                onReturnClick = {
+                    selectedCardMap.clear()
+                    selectedCount = 0
+                    isReturnClick = true
+                },
                 onDeleteClick = {
                     // Unfavourite Items using their Ids if selected
                     val idsToUnfavorite = selectedCardMap.filter { id -> id.value }.keys
@@ -66,24 +71,31 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
                  */
                 key(hymn.id) {
                     var isSelected by remember { mutableStateOf(false) }
+                    Log.i("FAVORITES", "recomposition #id:${hymn.id} , $isSelected")
+                    /**
+                     * Reset the value of remembered value of isSelected.
+                     * This is done to prevent the AppBar from reappearing since the value of
+                     * isSelected is remembered for each.
+                     */
+                    if (isReturnClick) isSelected = false
                     //store in a Map the Id of the hymn to it's selection truthValue
-                    selectedCardMap[hymn.id] = isSelected
-
+                    //selectedCardMap[hymn.id] = isSelected
                     FavoriteItemCard(
                         hymn = hymn,
                         isSelected = isSelected,
                         onCardClick = {
-                            if (selectedCount > 0) {
-                                isSelected = !isSelected
-                            }
+                            if (selectedCount > 0) isSelected = !isSelected
                             //else { // add navigation logic to navigate to hymn. }
                         },
                         onCheckMarkClick = { isSelected = !isSelected },
                         onLongPress = { isSelected = !isSelected },
                     )
+
                     SideEffect {
                         selectedCardMap[hymn.id] = isSelected
                         selectedCount = selectedCardMap.count { it.value }
+                        //Reset the value of isReturnClick after recomposition.
+                        isReturnClick = false
                     }
                 }
             }
@@ -171,7 +183,7 @@ fun FavoriteItemCard(
 @Composable
 fun MultiSelectAppBar(
     selectedCount: Int,
-    selectedCardMap: MutableMap<Int, Boolean>,
+    onReturnClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
     AnimatedVisibility(
@@ -183,7 +195,7 @@ fun MultiSelectAppBar(
             title = { Text("$selectedCount") },
             backgroundColor = MaterialTheme.colors.background,
             navigationIcon = {
-                IconButton(onClick = {}) {
+                IconButton(onClick = onReturnClick) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_return),
                         contentDescription = null,
