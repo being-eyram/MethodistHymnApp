@@ -65,7 +65,10 @@ fun MHANavGraph(navController: NavHostController) {
         }
 
         composable(route = Screen.Favorites.route) {
-            FavoritesScreen(hiltViewModel())
+            FavoritesScreen(
+                viewModel = hiltViewModel(),
+                navController = navController
+            )
         }
     }
 }

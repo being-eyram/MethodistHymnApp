@@ -22,21 +22,27 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.example.methodisthymnapp.R
 import com.example.methodisthymnapp.database.HymnEntity
 import com.example.methodisthymnapp.ui.component.AuthorTag
+import com.example.methodisthymnapp.ui.component.Screen
 import com.example.methodisthymnapp.ui.component.paddHymnNum
+import com.example.methodisthymnapp.ui.screens.hymns.HYMNS_CONTENT_KEY
 import com.example.methodisthymnapp.ui.theme.MHATheme
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
+fun FavoritesScreen(
+    viewModel: FavoritesViewModel = viewModel(),
+    navController: NavHostController
+) {
 
     val favorites by viewModel.getFavorites().collectAsState(listOf())
     val selectedCardMap = mutableMapOf<Int, Boolean>()
     var selectedCount by remember { mutableStateOf(0) }
-    var isReturnClick by remember {mutableStateOf(false) }
+    var isReturnClick by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -84,8 +90,11 @@ fun FavoritesScreen(viewModel: FavoritesViewModel = viewModel()) {
                         hymn = hymn,
                         isSelected = isSelected,
                         onCardClick = {
-                            if (selectedCount > 0) isSelected = !isSelected
-                            //else { // add navigation logic to navigate to hymn. }
+                            if (selectedCount > 0) {
+                                isSelected = !isSelected
+                            } else {
+                                navController.navigate(Screen.HymnsList.createRoute("$HYMNS_CONTENT_KEY/${hymn.id}"))
+                            }
                         },
                         onCheckMarkClick = { isSelected = !isSelected },
                         onLongPress = { isSelected = !isSelected },
