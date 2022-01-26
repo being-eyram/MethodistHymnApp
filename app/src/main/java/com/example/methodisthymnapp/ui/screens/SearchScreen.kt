@@ -22,6 +22,7 @@ import com.example.methodisthymnapp.ui.component.HymnCard
 import com.example.methodisthymnapp.ui.component.Screen
 import com.example.methodisthymnapp.ui.component.SearchBox
 import com.example.methodisthymnapp.ui.component.emptyString
+import com.example.methodisthymnapp.ui.screens.hymns.HYMNS_CONTENT_KEY
 import com.example.methodisthymnapp.ui.screens.hymns.HymnsListViewModel
 import com.example.methodisthymnapp.ui.screens.hymns.elevation
 
@@ -92,7 +93,7 @@ fun SearchScreen(
                                 viewModel.updateFavoriteState(hymn.id, isFavorite.compareTo(false))
                             },
                             onCardClick = {
-                                navController.navigate(Screen.HymnsList.createRoute("details"))
+                                navController.navigate(Screen.HymnsList.createRoute("$HYMNS_CONTENT_KEY/${hymn.id}"))
                             }
                         )
                         Spacer(Modifier.padding(top = 16.dp))
