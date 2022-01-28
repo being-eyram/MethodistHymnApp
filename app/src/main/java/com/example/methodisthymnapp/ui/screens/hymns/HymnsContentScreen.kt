@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
@@ -42,20 +41,22 @@ fun HymnContentScreen(
 ) {
     hymnContentViewModel.getHymn(clickedHymnId)
 
-    val clickedHymn = hymnContentViewModel.result.observeAsState()
+    val clickedHymn by hymnContentViewModel.result.observeAsState()
     var sliderPosition by remember { mutableStateOf(0f) }
     var bodyTitleFontSize by remember { mutableStateOf(20.sp) }
     var lyricsFontSize by remember { mutableStateOf(16.sp) }
-    var isTextSizeActionClicked: Boolean by remember { mutableStateOf(false) }
+    var isTextSizeActionClicked by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     val scrollState = rememberScrollState()
     val context = LocalContext.current
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .clickable(indication = null, interactionSource = interactionSource) {
-            isTextSizeActionClicked = !isTextSizeActionClicked
-        }) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(indication = null, interactionSource = interactionSource) {
+                isTextSizeActionClicked = !isTextSizeActionClicked
+            }
+    ) {
         Column(modifier = Modifier.fillMaxSize()) {
             ContentAppBar(
                 title = getAppBarTitle(clickedHymnId),
@@ -64,7 +65,7 @@ fun HymnContentScreen(
                 onShareActionClick = {
                     val sendIntent: Intent = Intent().apply {
                         action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_TEXT, "This is my text to send.")
+                        putExtra(Intent.EXTRA_TEXT, clickedHymn?.lyrics)
                         type = INTENT_TYPE_TEXT
                     }
                     val shareIntent = Intent.createChooser(sendIntent, null)
@@ -72,7 +73,8 @@ fun HymnContentScreen(
                 },
                 elevation = if (scrollState.value > 1) 4.dp else 0.dp
             )
-            clickedHymn.value?.let {
+
+            clickedHymn?.let {
                 HymnContent(
                     hymn = it,
                     titleFontSize = bodyTitleFontSize,
@@ -102,7 +104,6 @@ fun HymnContentScreen(
     }
 }
 
-
 @Composable
 fun ContentAppBar(
     title: String,
@@ -117,19 +118,16 @@ fun ContentAppBar(
             .height(56.dp),
         backgroundColor = MaterialTheme.colors.background,
         elevation = elevation,
-        contentPadding = PaddingValues(0.dp)
     ) {
         Box(Modifier.fillMaxSize()) {
-            Icon(
-                Icons.Default.ArrowBack,
-                contentDescription = "Navigate Up",
-                tint = MaterialTheme.colors.onBackground ,
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable(onClick = onNavigationActionClick)
-                    .padding(16.dp)
-            )
+            IconButton(onClick = onNavigationActionClick) {
+                Icon(
+                    Icons.Default.ArrowBack,
+                    contentDescription = "Navigate Up",
+                    tint = MaterialTheme.colors.onBackground,
+                    modifier = Modifier.align(Alignment.CenterStart)
+                )
+            }
 
             Text(
                 modifier = Modifier.align(Alignment.Center),
@@ -138,27 +136,22 @@ fun ContentAppBar(
             )
 
             Row(modifier = Modifier.align(Alignment.CenterEnd)) {
-                Icon(
-                    //Try changing the resource to ic_textsize
-                    painterResource(id = R.drawable.ic_text_size),
-                    contentDescription = "Change text size",
-                    tint = MaterialTheme.colors.onBackground,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable(onClick = onTextSizeActionClick)
-                        .padding(16.dp, 16.dp, 12.dp, 16.dp)
-                )
-                Icon(
-                    painterResource(id = R.drawable.ic_share),
-                    contentDescription = "Share Hymn",
-                    tint = MaterialTheme.colors.onBackground,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable(onClick = onShareActionClick)
-                        .padding(12.dp, 16.dp, 16.dp, 16.dp)
-                )
-            }
+                IconButton(onClick = onTextSizeActionClick) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_text_size),
+                        contentDescription = "Change text size",
+                        tint = MaterialTheme.colors.onBackground,
+                    )
+                }
 
+                IconButton(onClick = onShareActionClick) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_share),
+                        contentDescription = "Share Hymn",
+                        tint = MaterialTheme.colors.onBackground,
+                    )
+                }
+            }
         }
     }
 }
