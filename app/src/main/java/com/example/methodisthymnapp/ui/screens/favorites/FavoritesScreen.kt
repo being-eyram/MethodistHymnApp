@@ -2,6 +2,7 @@ package com.example.methodisthymnapp.ui.screens.favorites
 
 import android.util.Log
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -9,9 +10,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -29,6 +32,7 @@ import com.example.methodisthymnapp.ui.component.AuthorTag
 import com.example.methodisthymnapp.ui.component.Screen
 import com.example.methodisthymnapp.ui.component.paddHymnNum
 import com.example.methodisthymnapp.ui.screens.hymns.HYMNS_CONTENT_KEY
+import com.example.methodisthymnapp.ui.screens.hymns.elevation
 import com.example.methodisthymnapp.ui.theme.MHATheme
 
 
@@ -43,10 +47,12 @@ fun FavoritesScreen(
     val selectedCardMap = mutableMapOf<Int, Boolean>()
     var selectedCount by remember { mutableStateOf(0) }
     var isReturnClick by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
 
     Scaffold(
         topBar = {
-            MultiSelectAppBar(
+            FavoritesAppBar(
+                elevation = listState.elevation,
                 selectedCount = selectedCount,
                 onReturnClick = {
                     selectedCardMap.clear()
@@ -64,6 +70,7 @@ fun FavoritesScreen(
         }
     ) {
         LazyVerticalGrid(
+            state = listState,
             cells = GridCells.Adaptive(minSize = 168.dp),
             contentPadding = PaddingValues(8.dp, 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -190,38 +197,81 @@ fun FavoriteItemCard(
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MultiSelectAppBar(
+fun FavoritesAppBar(
+    elevation: Dp,
     selectedCount: Int,
     onReturnClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    AnimatedVisibility(
-        visible = selectedCount > 0,
-        enter = scaleIn() + fadeIn(),
-        exit = fadeOut() + scaleOut(),
-    ) {
-        TopAppBar(
-            title = { Text("$selectedCount") },
-            backgroundColor = MaterialTheme.colors.background,
-            navigationIcon = {
-                IconButton(onClick = onReturnClick) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_return),
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.onBackground
-                    )
-                }
-            },
-            actions = {
-                IconButton(onClick = onDeleteClick) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_delete),
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.onBackground
-                    )
-                }
+    var showContextAppBar by remember { mutableStateOf(false) }
+    showContextAppBar = selectedCount > 0
+
+    AnimatedContent(
+        targetState = showContextAppBar,
+        transitionSpec = {
+            scaleIn(initialScale = 0.50f, animationSpec = tween(220, delayMillis = 90)) +
+                    fadeIn(animationSpec = tween(220, delayMillis = 90)) with
+                    fadeOut(animationSpec = tween(90))
+        },
+        contentAlignment = Alignment.Center
+    ) { state ->
+        when {
+            state -> FavoritesContextAppBar(
+                selectedCount = selectedCount,
+                onReturnClick = onReturnClick,
+                onDeleteClick = onDeleteClick
+            )
+
+            else -> FavoritesDefaultAppBar(elevation = elevation)
+        }
+    }
+}
+
+@Composable
+fun FavoritesDefaultAppBar(elevation: Dp) {
+    TopAppBar(
+        elevation = elevation,
+        backgroundColor = MaterialTheme.colors.background,
+        contentColor = MaterialTheme.colors.onBackground,
+        title = { Text("Favorites") }
+    )
+}
+
+@Composable
+fun FavoritesContextAppBar(
+    selectedCount: Int,
+    onReturnClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    TopAppBar(
+        title = { Text("$selectedCount") },
+        backgroundColor = MaterialTheme.colors.background,
+        navigationIcon = {
+            IconButton(onClick = onReturnClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_return),
+                    contentDescription = null,
+                    tint = MaterialTheme.colors.onBackground
+                )
             }
-        )
+        },
+        actions = {
+            IconButton(onClick = onDeleteClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_delete),
+                    contentDescription = null,
+                    tint = MaterialTheme.colors.onBackground
+                )
+            }
+        }
+    )
+}
+
+@Preview
+@Composable
+fun FavoritesAppBarPreview() {
+    MHATheme {
+        FavoritesDefaultAppBar(elevation = 0.dp)
     }
 }
 
