@@ -22,7 +22,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
-import com.example.methodisthymnapp.ui.component.HymnCard
+import com.example.methodisthymnapp.ui.component.HymnListCard
 import com.example.methodisthymnapp.ui.component.HymnsListAppBar
 import com.example.methodisthymnapp.ui.component.Screen
 import com.example.methodisthymnapp.ui.screens.SearchScreen
@@ -55,7 +55,7 @@ fun HymnsScreen(
             items(hymns) { hymn ->
                 var favoriteState by remember { mutableStateOf(hymn.isFavorite != 0) }
 
-                HymnCard(
+                HymnListCard(
                     hymn,
                     isFavorite = favoriteState,
                     onFavoriteButtonToggle = {

@@ -23,15 +23,12 @@ import androidx.compose.ui.unit.sp
 import com.example.methodisthymnapp.database.HymnEntity
 
 @Composable
-fun HymnCard(
+fun HymnListCard(
     hymn: HymnEntity,
     isFavorite: Boolean,
     onFavoriteButtonToggle: () -> Unit,
     onCardClick: () -> Unit
 ) {
-    /**
-     * Remove the isFavorite and move it downwards without having to pass it as a parameter
-     */
     val (num, title, author, lyrics) = hymn
 
     Card(
@@ -61,8 +58,7 @@ fun HymnCard(
 
             Divider(
                 modifier = Modifier
-                    .height(80.dp)
-                    .width(1.dp)
+                    .size(1.dp, 80.dp)
                     .align(Alignment.CenterVertically)
             )
 

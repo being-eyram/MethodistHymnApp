@@ -40,7 +40,6 @@ fun MethodistHymnApp() {
     }
 }
 
-
 fun NavHostController.navigateTo(destination: String) {
     navigate(destination) {
         restoreState = true

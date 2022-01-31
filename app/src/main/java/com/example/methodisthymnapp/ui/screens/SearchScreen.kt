@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.methodisthymnapp.ui.component.HymnCard
+import com.example.methodisthymnapp.ui.component.HymnListCard
 import com.example.methodisthymnapp.ui.component.Screen
 import com.example.methodisthymnapp.ui.component.SearchBox
 import com.example.methodisthymnapp.ui.component.emptyString
@@ -37,7 +37,6 @@ fun SearchScreen(
     val listState = rememberLazyListState()
     val searchFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
-
 
     Scaffold(
         Modifier.fillMaxSize(),
@@ -61,9 +60,7 @@ fun SearchScreen(
                         else
                             viewModel.search(it)
                     },
-                    keyboardActions = KeyboardActions(
-                        onSearch = { keyboardController?.hide() }
-                    ),
+                    keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
                     onClearClick = { search = emptyString },
                     onReturnClick = { navController.navigateUp() },
                 )
@@ -85,7 +82,7 @@ fun SearchScreen(
                     items(searchResult!!) { hymn ->
                         var isFavorite by remember { mutableStateOf(hymn.isFavorite != 0) }
 
-                        HymnCard(
+                        HymnListCard(
                             hymn,
                             isFavorite = isFavorite,
                             onFavoriteButtonToggle = {
