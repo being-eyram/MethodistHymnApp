@@ -23,7 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import com.example.methodisthymnapp.ui.component.HymnCard
-import com.example.methodisthymnapp.ui.component.MHAAppBar
+import com.example.methodisthymnapp.ui.component.HymnsListAppBar
 import com.example.methodisthymnapp.ui.component.Screen
 import com.example.methodisthymnapp.ui.screens.SearchScreen
 
@@ -37,7 +37,7 @@ fun HymnsScreen(
 
     Scaffold(
         topBar = {
-            MHAAppBar(
+            HymnsListAppBar(
                 listState.elevation,
                 onSearchActionClick = { navController.navigate(Screen.HymnsList.createRoute("search")) }
             )

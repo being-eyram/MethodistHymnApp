@@ -1,8 +1,10 @@
 package com.example.methodisthymnapp.ui.component
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,7 +20,7 @@ import com.example.methodisthymnapp.R
 
 // Top App Bar
 @Composable
-fun MHAAppBar(
+fun HymnsListAppBar(
     elevation: Dp,
     onSearchActionClick: () -> Unit,
 ) {
@@ -106,4 +108,76 @@ fun MHABottomNavBar(
     }
 }
 
+//Favorites Screen AppBars
 
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun FavoritesAppBar(
+    elevation: Dp,
+    selectedCount: Int,
+    onReturnClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    var showContextAppBar by remember { mutableStateOf(false) }
+    showContextAppBar = selectedCount > 0
+
+    AnimatedContent(
+        targetState = showContextAppBar,
+        transitionSpec = {
+            scaleIn(initialScale = 0.50f, animationSpec = tween(220, delayMillis = 90)) +
+                    fadeIn(animationSpec = tween(220, delayMillis = 90)) with
+                    fadeOut(animationSpec = tween(90))
+        },
+        contentAlignment = Alignment.Center
+    ) { state ->
+        when {
+            state -> FavoritesContextAppBar(
+                selectedCount = selectedCount,
+                onReturnClick = onReturnClick,
+                onDeleteClick = onDeleteClick
+            )
+
+            else -> FavoritesDefaultAppBar(elevation = elevation)
+        }
+    }
+}
+
+@Composable
+fun FavoritesDefaultAppBar(elevation: Dp) {
+    TopAppBar(
+        elevation = elevation,
+        backgroundColor = MaterialTheme.colors.background,
+        contentColor = MaterialTheme.colors.onBackground,
+        title = { Text("Favorites") }
+    )
+}
+
+@Composable
+fun FavoritesContextAppBar(
+    selectedCount: Int,
+    onReturnClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    TopAppBar(
+        title = { Text("$selectedCount") },
+        backgroundColor = MaterialTheme.colors.background,
+        navigationIcon = {
+            IconButton(onClick = onReturnClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_return),
+                    contentDescription = null,
+                    tint = MaterialTheme.colors.onBackground
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = onDeleteClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_delete),
+                    contentDescription = null,
+                    tint = MaterialTheme.colors.onBackground
+                )
+            }
+        }
+    )
+}
