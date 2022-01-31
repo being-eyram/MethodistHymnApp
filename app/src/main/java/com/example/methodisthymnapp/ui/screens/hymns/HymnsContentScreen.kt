@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -118,10 +117,7 @@ fun ContentAppBar(
             Text(
                 text = title,
                 color = MaterialTheme.colors.onBackground,
-                style = MaterialTheme.typography.h2.copy(
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal
-                )
+                style = typography.subtitle1.copy(fontSize = 16.sp,),
             )
 
             Row(modifier = Modifier.align(Alignment.CenterEnd)) {

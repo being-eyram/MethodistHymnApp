@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -54,8 +55,9 @@ fun HymnCard(
                     .width(45.dp)
                     .align(Alignment.CenterVertically),
                 text = paddHymnNum(num),
-                color = Color(0xFF232323),
-                style = MaterialTheme.typography.h2
+                color = MaterialTheme.colors.onBackground,
+                style = MaterialTheme.typography.h2,
+                textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -169,12 +171,21 @@ fun MHAAppBar(
                 color = MaterialTheme.colors.onBackground
             )
 
-            IconButton(onClick = onSearchActionClick) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_search),
-                    contentDescription = "Search Hymns Action",
-                    tint = MaterialTheme.colors.onBackground
-                )
+            Row(Modifier.wrapContentSize()) {
+                IconButton(onClick = onSearchActionClick) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_search),
+                        contentDescription = "Search Hymns",
+                        tint = MaterialTheme.colors.onBackground
+                    )
+                }
+                IconButton(onClick = {/*TODO*/ }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_sort_list),
+                        contentDescription = "Sort Hymns",
+                        tint = MaterialTheme.colors.onBackground
+                    )
+                }
             }
         }
     }

@@ -4,7 +4,6 @@ import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.methodisthymnapp.R
@@ -69,7 +68,6 @@ val Typography = Typography(
         fontFamily = interFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 10.sp,
-        fontStyle = FontStyle.Italic,
         letterSpacing = 0.4.sp,
     )
     /* Other default text styles to override

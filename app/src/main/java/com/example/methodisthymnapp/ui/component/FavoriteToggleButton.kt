@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -113,7 +114,7 @@ fun FavoriteToggleButton(
             Icon(
                 painter = painterResource(id = if (isFavorite) IS_FAV_IC else IS_NOT_FAV_IC),
                 contentDescription = "Favorites Button",
-                tint = Color.Unspecified,
+                tint = if (isFavorite) Color.Unspecified else MaterialTheme.colors.onBackground,
             )
         }
     }
