@@ -25,10 +25,10 @@ class MainActivity : ComponentActivity() {
                     color = Color.Transparent,
                     darkIcons = useDarkColor
                 )
-//                systemUiController.setNavigationBarColor(
-//                    color = Color.Transparent,
-//                    darkIcons = useDarkColor
-//                )
+                systemUiController.setNavigationBarColor(
+                    color = Color.Transparent,
+                    darkIcons = useDarkColor
+                )
             }
 
             MethodistHymnApp()
