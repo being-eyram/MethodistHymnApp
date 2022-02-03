@@ -49,7 +49,7 @@ fun HymnListCard(
                     .width(45.dp)
                     .align(Alignment.CenterVertically),
                 text = paddHymnNum(num),
-                color = MaterialTheme.colors.onBackground,
+                color = MaterialTheme.colors.onBackground.copy(alpha = 0.87f),
                 style = MaterialTheme.typography.h2,
                 textAlign = TextAlign.Center
             )
@@ -77,6 +77,7 @@ fun HymnListCard(
                     ),
                     text = title,
                     style = MaterialTheme.typography.subtitle1,
+                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.87f),
                     maxLines = 1,
                 )
 
@@ -84,7 +85,7 @@ fun HymnListCard(
                     modifier = Modifier.paddingFromBaseline(top = 16.dp, bottom = 4.dp),
                     text = lyrics,
                     style = MaterialTheme.typography.body2,
-                    color = Color(0xFF7D7D7D),
+                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.60f),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 2
                 )

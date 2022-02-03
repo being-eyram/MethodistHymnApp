@@ -1,5 +1,11 @@
 package com.example.methodisthymnapp.ui.screens.hymns
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,8 +14,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.AppBarDefaults
+import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -27,40 +36,54 @@ import com.example.methodisthymnapp.ui.component.HymnsListAppBar
 import com.example.methodisthymnapp.ui.component.Screen
 import com.example.methodisthymnapp.ui.screens.SearchScreen
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun HymnsScreen(
+fun HymnsListScreen(
     viewModel: HymnsListViewModel = viewModel(),
     navController: NavHostController,
 ) {
     val hymns by viewModel.getAllHymns().collectAsState(listOf())
     val listState = rememberLazyListState()
+    val showScrollToBottomButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 20 } }
 
     Scaffold(
         topBar = {
             HymnsListAppBar(
                 listState.elevation,
-                onSearchActionClick = { navController.navigate(Screen.HymnsList.createRoute("search")) }
+                onSearchActionClick = { navController.navigate(Screen.HymnsList.createRoute("search")) },
             )
+        },
+        floatingActionButton = {
+            if (showScrollToBottomButton) {
+                AnimatedVisibility(
+                    visible = true,
+                    enter = scaleIn(tween()),
+                    exit = scaleOut(spring())
+                ) {
+                    ScrollToBottomButton(Modifier.padding(bottom = 56.dp)) {
+
+                    }
+                }
+            }
         }
     ) {
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 56.dp),
+                .padding(bottom = it.calculateBottomPadding()),
             state = listState,
             contentPadding = PaddingValues(8.dp)
         ) {
 
-            items(hymns) { hymn ->
-                var favoriteState by remember { mutableStateOf(hymn.isFavorite != 0) }
-
+            items(hymns, key = { hymn -> hymn.id }) { hymn ->
                 HymnListCard(
-                    hymn,
-                    isFavorite = favoriteState,
+                    hymn = hymn,
+                    isFavorite = hymn.isFavorite != FALSE,
                     onFavoriteButtonToggle = {
-                        favoriteState = !favoriteState
-                        viewModel.updateFavoriteState(hymn.id, favoriteState.compareTo(false))
+                        viewModel.updateFavoriteState(
+                            hymn.id,
+                            if (hymn.isFavorite == FALSE) TRUE else FALSE
+                        )
                     },
                     onCardClick = {
                         navController.navigate(Screen.HymnsList.createRoute("$HYMNS_CONTENT_KEY/${hymn.id}"))
@@ -71,7 +94,6 @@ fun HymnsScreen(
         }
     }
 }
-
 
 val LazyListState.elevation: Dp
     get() = if (firstVisibleItemIndex == 0) {
@@ -91,7 +113,7 @@ fun NavGraphBuilder.hymnsGraph(navController: NavHostController) {
     ) {
 
         composable(route = Screen.HymnsList.createRoute("HymnsList")) {
-            HymnsScreen(hiltViewModel(), navController)
+            HymnsListScreen(hiltViewModel(), navController)
         }
 
         composable(
@@ -108,5 +130,18 @@ fun NavGraphBuilder.hymnsGraph(navController: NavHostController) {
     }
 }
 
+@Composable
+fun ScrollToBottomButton(modifier: Modifier, onClick: () -> Unit) {
+    Button(
+        modifier = modifier,
+        onClick = onClick,
+        shape = CircleShape,
+    ) {
+        Text("Scroll To Bottom")
+    }
+}
+
 const val CLICKED_HYMN_ID = "clickedHymnId"
 const val HYMNS_CONTENT_KEY = "HymnsContent"
+const val FALSE = 0
+const val TRUE = 1

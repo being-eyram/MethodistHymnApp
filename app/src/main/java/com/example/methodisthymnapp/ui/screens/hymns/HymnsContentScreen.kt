@@ -167,7 +167,7 @@ fun HymnContent(
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .paddingFromBaseline(48.dp)
+                .paddingFromBaseline(64.dp)
                 .padding(horizontal = 16.dp),
             text = lyrics,
             textAlign = TextAlign.Start,

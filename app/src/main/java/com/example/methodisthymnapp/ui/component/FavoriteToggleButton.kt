@@ -31,8 +31,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 const val NUMBER_OF_RINGS = 3
-const val IS_FAV_IC = R.drawable.ic_heartfilled
-const val IS_NOT_FAV_IC = R.drawable.ic_heartoutlined
+const val IS_FAV_IC = R.drawable.ic_favorite_button_active
+const val IS_NOT_FAV_IC = R.drawable.ic_favorite_button
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -73,7 +73,7 @@ fun FavoriteToggleButton(
         repeat(NUMBER_OF_RINGS) { index ->
             Ripple(
                 modifier = Modifier.align(Alignment.Center),
-                color = Color.Red,
+                color = Color(0xFFE0245E),
                 radius = rippleRadius[index].value,
                 alpha = rippleAlpha[index].value,
                 style = Stroke(width = rippleStrokeWidth[index].value)
@@ -114,7 +114,8 @@ fun FavoriteToggleButton(
             Icon(
                 painter = painterResource(id = if (isFavorite) IS_FAV_IC else IS_NOT_FAV_IC),
                 contentDescription = "Favorites Button",
-                tint = if (isFavorite) Color.Unspecified else MaterialTheme.colors.onBackground,
+                tint = if (isFavorite) Color.Unspecified
+                else MaterialTheme.colors.onBackground.copy(alpha = 0.60f),
             )
         }
     }
