@@ -141,7 +141,7 @@ fun FavoriteItemCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 11.dp),
+                .padding(start = 11.dp)
         ) {
 
             Row(
@@ -158,6 +158,7 @@ fun FavoriteItemCard(
                     color = MaterialTheme.colors.onBackground,
                     style = MaterialTheme.typography.h2
                 )
+                //Remember to use animated content over here.
                 if (isSelected) {
                     IconButton(
                         modifier = Modifier.size(48.dp, 40.dp),
@@ -169,11 +170,24 @@ fun FavoriteItemCard(
                             tint = Color(0xFF50D1AA)
                         )
                     }
+                } else {
+                    IconButton(
+                       modifier = Modifier.size(48.dp , 40.dp),
+                        onClick = { }) {
+                        Icon(
+                            modifier = Modifier.size(18.dp),
+                            painter = painterResource(id = R.drawable.ic_overflow_menu),
+                            contentDescription = null,
+                            tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
+                        )
+                    }
                 }
             }
 
             Text(
-                modifier = Modifier.paddingFromBaseline(bottom = 4.dp),
+                modifier = Modifier
+                    .paddingFromBaseline(bottom = 4.dp)
+                    .padding(end = 11.dp),
                 text = title,
                 style = MaterialTheme.typography.subtitle1,
                 fontSize = 12.sp,
@@ -182,7 +196,7 @@ fun FavoriteItemCard(
             )
 
             AuthorTag(
-                modifier = Modifier.padding(top = 8.dp, bottom = 11.dp),
+                modifier = Modifier.padding(top = 8.dp, bottom = 11.dp, end = 11.dp),
                 author = author
             )
         }
@@ -206,7 +220,7 @@ fun FavoriteItemCardPreview() {
         FavoriteItemCard(
             HymnEntity(
                 0,
-                "On my way to become big",
+                "On my way to the stars",
                 "Eyram Michael",
                 "There is no lyrics bruh",
                 1
