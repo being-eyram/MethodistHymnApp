@@ -152,7 +152,6 @@ fun HymnContent(
         Modifier
             .fillMaxSize()
             .verticalScroll(scrollState),
-
         ) {
         Text(
             modifier = Modifier

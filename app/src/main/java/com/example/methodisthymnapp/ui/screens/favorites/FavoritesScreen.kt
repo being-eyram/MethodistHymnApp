@@ -3,6 +3,7 @@ package com.example.methodisthymnapp.ui.screens.favorites
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
@@ -31,11 +32,12 @@ import com.example.methodisthymnapp.ui.screens.hymns.elevation
 import com.example.methodisthymnapp.ui.theme.MHATheme
 
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FavoritesScreen(
     viewModel: FavoritesViewModel = viewModel(),
-    navController: NavHostController
+    navController: NavHostController,
+    onFavoriteCardOverflowClick: () -> Unit,
 ) {
 
     val favorites by viewModel.getFavorites().collectAsState(listOf())
@@ -94,11 +96,12 @@ fun FavoritesScreen(
                             if (selectedCount > 0) {
                                 isSelected = !isSelected
                             } else {
-                                navController.navigate(Screen.HymnsList.createRoute("$HYMNS_CONTENT_KEY/${hymn.id}"))
+                                navController.navigate(Screen.FullScreen.HymnDestails.createRoute("$HYMNS_CONTENT_KEY/${hymn.id}"))
                             }
                         },
                         onCheckMarkClick = { isSelected = !isSelected },
                         onLongPress = { isSelected = !isSelected },
+                        onOverflowMenuClick = onFavoriteCardOverflowClick
                     )
 
                     SideEffect {
@@ -119,6 +122,7 @@ fun FavoriteItemCard(
     isSelected: Boolean,
     onCardClick: () -> Unit,
     onCheckMarkClick: () -> Unit,
+    onOverflowMenuClick: () -> Unit,
     onLongPress: () -> Unit
 ) {
     val (num, title, author) = hymn
@@ -143,57 +147,59 @@ fun FavoriteItemCard(
                 .fillMaxSize()
                 .padding(start = 11.dp)
         ) {
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
+            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+                Row(
                     modifier = Modifier
-                        .width(45.dp)
-                        .paddingFromBaseline(27.dp),
-                    text = paddHymnNum(num),
-                    color = MaterialTheme.colors.onBackground,
-                    style = MaterialTheme.typography.h2
-                )
-                //Remember to use animated content over here.
-                if (isSelected) {
-                    IconButton(
-                        modifier = Modifier.size(48.dp, 40.dp),
-                        onClick = onCheckMarkClick
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_checkmark),
-                            contentDescription = null,
-                            tint = Color(0xFF50D1AA)
-                        )
-                    }
-                } else {
-                    IconButton(
-                       modifier = Modifier.size(48.dp , 40.dp),
-                        onClick = { }) {
-                        Icon(
-                            modifier = Modifier.size(18.dp),
-                            painter = painterResource(id = R.drawable.ic_overflow_menu),
-                            contentDescription = null,
-                            tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
-                        )
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .width(45.dp)
+                            .paddingFromBaseline(27.dp),
+                        text = paddHymnNum(num),
+                        color = MaterialTheme.colors.onBackground,
+                        style = MaterialTheme.typography.h2
+                    )
+                    //Remember to use animated content over here.
+                    if (isSelected) {
+                        IconButton(
+                            modifier = Modifier.size(48.dp, 40.dp),
+                            onClick = onCheckMarkClick
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_checkmark),
+                                contentDescription = null,
+                                tint = Color(0xFF50D1AA)
+                            )
+                        }
+                    } else {
+                        IconButton(
+                            modifier = Modifier.size(48.dp, 40.dp),
+                            onClick = onOverflowMenuClick
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(18.dp),
+                                painter = painterResource(id = R.drawable.ic_overflow_menu),
+                                contentDescription = null,
+                                tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
+                            )
+                        }
                     }
                 }
-            }
 
-            Text(
-                modifier = Modifier
-                    .paddingFromBaseline(bottom = 4.dp)
-                    .padding(end = 11.dp),
-                text = title,
-                style = MaterialTheme.typography.subtitle1,
-                fontSize = 12.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+                Text(
+                    modifier = Modifier
+                        .paddingFromBaseline(bottom = 4.dp)
+                        .padding(end = 11.dp),
+                    text = title,
+                    style = MaterialTheme.typography.subtitle1,
+                    fontSize = 12.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
 
             AuthorTag(
                 modifier = Modifier.padding(top = 8.dp, bottom = 11.dp, end = 11.dp),
@@ -203,6 +209,35 @@ fun FavoriteItemCard(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun FavoritesBottomSheetContent(
+    onShareClick: () -> Unit,
+    onRemoveFromFavoritesClick: () -> Unit
+) {
+    ListItem(
+        modifier = Modifier.clickable(onClick = onShareClick),
+        icon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_share),
+                contentDescription = null,
+                tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
+            )
+        },
+        text = { Text("Share") }
+    )
+    ListItem(
+        modifier = Modifier.clickable(onClick = onRemoveFromFavoritesClick),
+        icon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_delete),
+                contentDescription = null,
+                tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
+            )
+        },
+        text = { Text("Remove from Favorites") }
+    )
+}
 
 @Preview
 @Composable
@@ -211,7 +246,6 @@ fun FavoritesAppBarPreview() {
         FavoritesDefaultAppBar(elevation = 0.dp)
     }
 }
-
 
 @Preview
 @Composable
@@ -229,6 +263,7 @@ fun FavoriteItemCardPreview() {
             onCardClick = {},
             onLongPress = {},
             onCheckMarkClick = {},
+            onOverflowMenuClick = {}
         )
     }
 }

@@ -1,44 +1,94 @@
 package com.example.methodisthymnapp.ui.component
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.methodisthymnapp.R
+import com.example.methodisthymnapp.ui.screens.SearchScreen
 import com.example.methodisthymnapp.ui.screens.canticles.CanticlesScreen
 import com.example.methodisthymnapp.ui.screens.favorites.FavoritesScreen
-import com.example.methodisthymnapp.ui.screens.hymns.hymnsGraph
+import com.example.methodisthymnapp.ui.screens.hymns.CLICKED_HYMN_ID
+import com.example.methodisthymnapp.ui.screens.hymns.HYMNS_CONTENT_KEY
+import com.example.methodisthymnapp.ui.screens.hymns.HymnContentScreen
+import com.example.methodisthymnapp.ui.screens.hymns.HymnsListScreen
 import com.example.methodisthymnapp.ui.theme.MHATheme
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MethodistHymnApp() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+//    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    var showBottomNavBar by remember { mutableStateOf(true) }
+//    val coroutineScope = rememberCoroutineScope()
 
     val bottomNavBar: @Composable () -> Unit = {
-        MHABottomNavBar(
-            currentDestination = currentDestination,
-            navController = navController,
-        )
+        AnimatedVisibility(showBottomNavBar) {
+            MHABottomNavBar(
+                currentDestination = currentDestination,
+                navController = navController,
+            )
+        }
     }
 
     MHATheme {
         Scaffold(
             bottomBar = bottomNavBar
         ) {
-            MHANavGraph(navController = navController)
+            NavHost(
+                navController = navController,
+                startDestination = Screen.BottomNavScreen.HymnsList.route
+            ) {
+
+                composable(route = Screen.BottomNavScreen.HymnsList.route) {
+                    showBottomNavBar = true
+                    HymnsListScreen(hiltViewModel(), navController)
+                }
+
+                composable(
+                    route = Screen.FullScreen.HymnDestails.createRoute("$HYMNS_CONTENT_KEY/{$CLICKED_HYMN_ID}"),
+                    arguments = listOf(navArgument(CLICKED_HYMN_ID) { type = NavType.IntType })
+                ) {
+                    showBottomNavBar = false
+                    val clickedHymnId = it.arguments?.getInt(CLICKED_HYMN_ID)!!
+                    HymnContentScreen(navController, clickedHymnId, hiltViewModel())
+                }
+
+                composable(route = Screen.FullScreen.Search.route) {
+                    showBottomNavBar = false
+                    SearchScreen(navController, hiltViewModel())
+                }
+
+                composable(route = Screen.BottomNavScreen.Canticles.route) {
+                    showBottomNavBar = true
+                    CanticlesScreen()
+                }
+
+                composable(route = Screen.BottomNavScreen.Favorites.route) {
+                    FavoritesScreen(
+                        viewModel = hiltViewModel(),
+                        navController = navController,
+                        onFavoriteCardOverflowClick = { showBottomNavBar = false }
+                    )
+                }
+            }
         }
     }
 }
+
 
 fun NavHostController.navigateTo(destination: String) {
     navigate(destination) {
@@ -50,37 +100,18 @@ fun NavHostController.navigateTo(destination: String) {
     }
 }
 
+sealed class Screen() {
 
-@Composable
-fun MHANavGraph(navController: NavHostController) {
-    NavHost(
-        navController = navController,
-        startDestination = Screen.HymnsList.route
-    ) {
-        hymnsGraph(navController)
-
-        composable(route = Screen.Canticles.route) {
-            CanticlesScreen()
-        }
-
-        composable(route = Screen.Favorites.route) {
-            FavoritesScreen(
-                viewModel = hiltViewModel(),
-                navController = navController
-            )
+    sealed class FullScreen(val route: String) : Screen() {
+        object Search : FullScreen("search")
+        object HymnDestails : FullScreen("Details") {
+            fun createRoute(route: String) = "Hymns/$route"
         }
     }
-}
 
-sealed class Screen(val route: String, @DrawableRes val icon: Int) {
-    object Canticles : Screen("canticles", R.drawable.ic_canticles)
-    object Favorites : Screen("favorites", R.drawable.ic_heartfilled)
-    object HymnsList : Screen("hymns", R.drawable.ic_hymns) {
-        fun createRoute(route: String) = "Hymns/$route"
+    sealed class BottomNavScreen(val route: String, @DrawableRes val icon: Int) : Screen() {
+        object Canticles : BottomNavScreen("canticles", R.drawable.ic_canticles)
+        object Favorites : BottomNavScreen("favorites", R.drawable.ic_favorite_button_active)
+        object HymnsList : BottomNavScreen("hymns", R.drawable.ic_hymns)
     }
 }
-
-
-
-
-

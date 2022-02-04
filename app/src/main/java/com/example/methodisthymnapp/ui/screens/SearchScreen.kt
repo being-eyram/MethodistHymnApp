@@ -90,7 +90,7 @@ fun SearchScreen(
                                 viewModel.updateFavoriteState(hymn.id, isFavorite.compareTo(false))
                             },
                             onCardClick = {
-                                navController.navigate(Screen.HymnsList.createRoute("$HYMNS_CONTENT_KEY/${hymn.id}"))
+                                navController.navigate(Screen.FullScreen.HymnDestails.createRoute("$HYMNS_CONTENT_KEY/${hymn.id}"))
                             }
                         )
                         Spacer(Modifier.padding(top = 16.dp))

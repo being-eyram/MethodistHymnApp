@@ -74,9 +74,9 @@ fun HymnsListAppBar(
 // Bottom App Bar
 
 val bottomNavScreens = listOf(
-    Screen.HymnsList,
-    Screen.Canticles,
-    Screen.Favorites
+    Screen.BottomNavScreen.HymnsList,
+    Screen.BottomNavScreen.Canticles,
+    Screen.BottomNavScreen.Favorites
 )
 
 @Composable

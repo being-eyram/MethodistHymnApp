@@ -23,18 +23,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
-import androidx.navigation.navArgument
 import com.example.methodisthymnapp.ui.component.HymnListCard
 import com.example.methodisthymnapp.ui.component.HymnsListAppBar
 import com.example.methodisthymnapp.ui.component.Screen
-import com.example.methodisthymnapp.ui.screens.SearchScreen
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -50,7 +43,7 @@ fun HymnsListScreen(
         topBar = {
             HymnsListAppBar(
                 listState.elevation,
-                onSearchActionClick = { navController.navigate(Screen.HymnsList.createRoute("search")) },
+                onSearchActionClick = { navController.navigate(Screen.FullScreen.Search.route) },
             )
         },
         floatingActionButton = {
@@ -86,7 +79,7 @@ fun HymnsListScreen(
                         )
                     },
                     onCardClick = {
-                        navController.navigate(Screen.HymnsList.createRoute("$HYMNS_CONTENT_KEY/${hymn.id}"))
+                        navController.navigate(Screen.FullScreen.HymnDestails.createRoute("$HYMNS_CONTENT_KEY/${hymn.id}"))
                     }
                 )
                 Spacer(Modifier.padding(top = 16.dp))
@@ -106,29 +99,15 @@ val LazyListState.elevation: Dp
     }
 
 
-fun NavGraphBuilder.hymnsGraph(navController: NavHostController) {
-    navigation(
-        startDestination = Screen.HymnsList.createRoute("HymnsList"),
-        route = Screen.HymnsList.route
-    ) {
-
-        composable(route = Screen.HymnsList.createRoute("HymnsList")) {
-            HymnsListScreen(hiltViewModel(), navController)
-        }
-
-        composable(
-            route = Screen.HymnsList.createRoute("$HYMNS_CONTENT_KEY/{$CLICKED_HYMN_ID}"),
-            arguments = listOf(navArgument(CLICKED_HYMN_ID) { type = NavType.IntType })
-        ) {
-            val clickedHymnId = it.arguments?.getInt(CLICKED_HYMN_ID)!!
-            HymnContentScreen(navController, clickedHymnId, hiltViewModel())
-        }
-
-        composable(route = Screen.HymnsList.createRoute("Search")) {
-            SearchScreen(navController, hiltViewModel())
-        }
-    }
-}
+//fun NavGraphBuilder.hymnsGraph(navController: NavHostController) {
+//    navigation(
+//        startDestination = Screen.HymnsList.createRoute("HymnsList"),
+//        route = Screen.HymnsList.route
+//    ) {
+//
+//
+//    }
+//}
 
 @Composable
 fun ScrollToBottomButton(modifier: Modifier, onClick: () -> Unit) {
