@@ -1,5 +1,6 @@
 package com.example.methodisthymnapp.ui.screens.favorites
 
+import android.content.Intent
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -16,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,8 +30,10 @@ import com.example.methodisthymnapp.R
 import com.example.methodisthymnapp.database.HymnEntity
 import com.example.methodisthymnapp.ui.component.*
 import com.example.methodisthymnapp.ui.screens.hymns.HYMNS_CONTENT_KEY
+import com.example.methodisthymnapp.ui.screens.hymns.INTENT_TYPE_TEXT
 import com.example.methodisthymnapp.ui.screens.hymns.elevation
 import com.example.methodisthymnapp.ui.theme.MHATheme
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
@@ -38,80 +42,142 @@ fun FavoritesScreen(
     viewModel: FavoritesViewModel = viewModel(),
     navController: NavHostController,
     onFavoriteCardOverflowClick: () -> Unit,
+    onBottomSheetDismiss: () -> Unit,
 ) {
 
     val favorites by viewModel.getFavorites().collectAsState(listOf())
     val selectedCardMap = mutableMapOf<Int, Boolean>()
     var selectedCount by remember { mutableStateOf(0) }
     var isReturnClick by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
-    Scaffold(
-        topBar = {
-            FavoritesAppBar(
-                elevation = listState.elevation,
-                selectedCount = selectedCount,
-                onReturnClick = {
-                    selectedCardMap.clear()
-                    selectedCount = 0
-                    isReturnClick = true
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetContent = {
+            ListItem(
+                modifier = Modifier.clickable(onClick = {
+                    val sendIntent: Intent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, viewModel.clickedHymn)
+                        type = INTENT_TYPE_TEXT
+                    }
+                    val shareIntent = Intent.createChooser(sendIntent, null)
+                    context.startActivity(shareIntent)
+                    coroutineScope.launch { sheetState.hide() }
+                }),
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_share),
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
+                    )
                 },
-                onDeleteClick = {
-                    // Unfavourite Items using their Ids if selected
-                    val idsToUnfavorite = selectedCardMap.filter { id -> id.value }.keys
-                    idsToUnfavorite.forEach { viewModel.updateFavoriteState(it, 0) }
-                    selectedCardMap.clear()
-                    selectedCount = 0
-                }
+                text = { Text("Share") }
+            )
+            ListItem(
+                modifier = Modifier.clickable(onClick = {
+                    viewModel.updateFavoriteState(viewModel.clickedHymnId, 0)
+                    coroutineScope.launch { sheetState.hide() }
+                }),
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_delete),
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
+                    )
+                },
+                text = { Text("Remove from Favorites") }
             )
         }
     ) {
-        LazyVerticalGrid(
-            state = listState,
-            cells = GridCells.Adaptive(minSize = 168.dp),
-            contentPadding = PaddingValues(8.dp, 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Scaffold(
+            topBar = {
+                FavoritesAppBar(
+                    elevation = listState.elevation,
+                    selectedCount = selectedCount,
+                    onReturnClick = {
+                        selectedCardMap.clear()
+                        selectedCount = 0
+                        isReturnClick = true
+                    },
+                    onDeleteClick = {
+                        // Unfavourite Items using their Ids if selected
+                        val idsToUnfavorite = selectedCardMap.filter { id -> id.value }.keys
+                        idsToUnfavorite.forEach { viewModel.updateFavoriteState(it, 0) }
+                        selectedCardMap.clear()
+                        selectedCount = 0
+                    }
+                )
+            }
         ) {
+            LazyVerticalGrid(
+                state = listState,
+                cells = GridCells.Adaptive(minSize = 168.dp),
+                contentPadding = PaddingValues(8.dp, 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
 
-            items(favorites) { hymn ->
-                /**
-                 * It seems to me that because of the key is [isSelected] is generated
-                 * for each hymn in the favorites list.
-                 */
-                key(hymn.id) {
-                    var isSelected by remember { mutableStateOf(false) }
+                items(favorites) { hymn ->
                     /**
-                     * Reset the value of remembered value of isSelected.
-                     * This is done to prevent the AppBar from reappearing since the value of
-                     * isSelected is remembered for each.
+                     * It seems to me that because of the key is [isSelected] is generated
+                     * for each hymn in the favorites list.
                      */
-                    if (isReturnClick) isSelected = false
-                    //store in a Map the Id of the hymn to it's selection truthValue
-                    //selectedCardMap[hymn.id] = isSelected
-                    FavoriteItemCard(
-                        hymn = hymn,
-                        isSelected = isSelected,
-                        onCardClick = {
-                            if (selectedCount > 0) {
-                                isSelected = !isSelected
-                            } else {
-                                navController.navigate(Screen.FullScreen.HymnDestails.createRoute("$HYMNS_CONTENT_KEY/${hymn.id}"))
+                    key(hymn.id) {
+                        var isSelected by remember { mutableStateOf(false) }
+                        /**
+                         * Reset the value of remembered value of isSelected.
+                         * This is done to prevent the AppBar from reappearing since the value of
+                         * isSelected is remembered for each.
+                         */
+                        if (isReturnClick) isSelected = false
+                        //store in a Map the Id of the hymn to it's selection truthValue
+                        //selectedCardMap[hymn.id] = isSelected
+                        FavoriteItemCard(
+                            hymn = hymn,
+                            isSelected = isSelected,
+                            onCardClick = {
+                                if (selectedCount > 0) {
+                                    isSelected = !isSelected
+                                } else {
+                                    navController.navigate(
+                                        Screen.FullScreen.HymnDestails.createRoute(
+                                            "$HYMNS_CONTENT_KEY/${hymn.id}"
+                                        )
+                                    )
+                                }
+                            },
+                            onCheckMarkClick = { isSelected = !isSelected },
+                            onLongPress = { isSelected = !isSelected },
+                            onOverflowMenuClick = {
+                                coroutineScope.launch {
+                                    sheetState.show()
+                                }
+                                onFavoriteCardOverflowClick()
+                                viewModel.clickedHymnId = hymn.id
+                                viewModel.getHymn(hymn.id)
                             }
-                        },
-                        onCheckMarkClick = { isSelected = !isSelected },
-                        onLongPress = { isSelected = !isSelected },
-                        onOverflowMenuClick = onFavoriteCardOverflowClick
-                    )
+                        )
 
-                    SideEffect {
-                        selectedCardMap[hymn.id] = isSelected
-                        selectedCount = selectedCardMap.count { it.value }
-                        //Reset the value of isReturnClick after recomposition.
-                        isReturnClick = false
+                        SideEffect {
+                            selectedCardMap[hymn.id] = isSelected
+                            selectedCount = selectedCardMap.count { it.value }
+                            //Reset the value of isReturnClick after recomposition.
+                            isReturnClick = false
+                        }
                     }
                 }
             }
+        }
+    }
+
+    LaunchedEffect(sheetState.currentValue) {
+        //If sheet is not visible invoke the callback below.
+        if (!sheetState.isVisible) {
+            onBottomSheetDismiss.invoke()
         }
     }
 }
@@ -207,36 +273,6 @@ fun FavoriteItemCard(
             )
         }
     }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun FavoritesBottomSheetContent(
-    onShareClick: () -> Unit,
-    onRemoveFromFavoritesClick: () -> Unit
-) {
-    ListItem(
-        modifier = Modifier.clickable(onClick = onShareClick),
-        icon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_share),
-                contentDescription = null,
-                tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
-            )
-        },
-        text = { Text("Share") }
-    )
-    ListItem(
-        modifier = Modifier.clickable(onClick = onRemoveFromFavoritesClick),
-        icon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_delete),
-                contentDescription = null,
-                tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
-            )
-        },
-        text = { Text("Remove from Favorites") }
-    )
 }
 
 @Preview

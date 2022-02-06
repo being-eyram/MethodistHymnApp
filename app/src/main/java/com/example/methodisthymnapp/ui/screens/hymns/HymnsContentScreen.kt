@@ -27,7 +27,7 @@ import com.example.methodisthymnapp.R
 import com.example.methodisthymnapp.database.HymnEntity
 
 private val MAX_LYRICS_TEXT_SIZE = 24.sp
-private const val INTENT_TYPE_TEXT = "text/plain"
+const val INTENT_TYPE_TEXT = "text/plain"
 
 @Composable
 fun HymnContentScreen(
