@@ -1,5 +1,6 @@
 package com.example.methodisthymnapp.ui.screens.hymns
 
+import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
@@ -51,15 +52,7 @@ fun HymnContentScreen(
                 title = getAppBarTitle(clickedHymnId),
                 onNavigationActionClick = { navController.navigateUp() },
                 onTextSizeActionClick = { showTextSizeSlider = !showTextSizeSlider },
-                onShareActionClick = {
-                    val sendIntent: Intent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_TEXT, clickedHymn?.lyrics)
-                        type = INTENT_TYPE_TEXT
-                    }
-                    val shareIntent = Intent.createChooser(sendIntent, null)
-                    context.startActivity(shareIntent)
-                },
+                onShareActionClick = { onShareActionClick(context, clickedHymn?.lyrics ?: "Lyrics Not Available")},
                 elevation = if (scrollState.value > 1) 4.dp else 0.dp
             )
 
@@ -251,4 +244,14 @@ private fun getAppBarTitle(id: Int): String {
         (id < 99) -> "MH0$id"
         else -> "MH$id"
     }
+}
+
+fun onShareActionClick (context : Context, lyrics : String ){
+    val sendIntent: Intent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, lyrics)
+        type = INTENT_TYPE_TEXT
+    }
+    val shareIntent = Intent.createChooser(sendIntent, null)
+    context.startActivity(shareIntent)
 }

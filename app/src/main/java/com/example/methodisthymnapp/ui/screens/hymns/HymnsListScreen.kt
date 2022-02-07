@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import com.example.methodisthymnapp.ui.component.HymnListCard
 import com.example.methodisthymnapp.ui.component.HymnsListAppBar
 import com.example.methodisthymnapp.ui.component.Screen
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -37,35 +38,37 @@ fun HymnsListScreen(
 ) {
     val hymns by viewModel.getAllHymns().collectAsState(listOf())
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
     val showScrollToBottomButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 20 } }
 
     Scaffold(
         topBar = {
             HymnsListAppBar(
-                listState.elevation,
+                elevation = listState.elevation,
                 onSearchActionClick = { navController.navigate(Screen.FullScreen.Search.route) },
             )
         },
         floatingActionButton = {
             if (showScrollToBottomButton) {
-                AnimatedVisibility(
-                    visible = true,
-                    enter = scaleIn(tween()),
-                    exit = scaleOut(spring())
-                ) {
-                    ScrollToBottomButton(Modifier.padding(bottom = 56.dp)) {
-
+                ScrollToBottomButton(
+                    modifier = Modifier.padding(bottom = 56.dp),
+                    onClick = {
+                        coroutineScope.launch { listState.scrollToItem(hymns.lastIndex) }
                     }
-                }
+                )
             }
         }
     ) {
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = it.calculateBottomPadding()),
+                .fillMaxSize(),
             state = listState,
-            contentPadding = PaddingValues(8.dp)
+            contentPadding = PaddingValues(
+                top = 8.dp,
+                bottom = it.calculateBottomPadding(),
+                start = 8.dp,
+                end = 8.dp
+            )
         ) {
 
             items(hymns, key = { hymn -> hymn.id }) { hymn ->
@@ -99,24 +102,21 @@ val LazyListState.elevation: Dp
     }
 
 
-//fun NavGraphBuilder.hymnsGraph(navController: NavHostController) {
-//    navigation(
-//        startDestination = Screen.HymnsList.createRoute("HymnsList"),
-//        route = Screen.HymnsList.route
-//    ) {
-//
-//
-//    }
-//}
-
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ScrollToBottomButton(modifier: Modifier, onClick: () -> Unit) {
-    Button(
-        modifier = modifier,
-        onClick = onClick,
-        shape = CircleShape,
+    AnimatedVisibility(
+        visible = true,
+        enter = scaleIn(tween()),
+        exit = scaleOut(spring())
     ) {
-        Text("Scroll To Bottom")
+        Button(
+            modifier = modifier,
+            onClick = onClick,
+            shape = CircleShape,
+        ) {
+            Text("Scroll To Bottom")
+        }
     }
 }
 

@@ -1,6 +1,5 @@
 package com.example.methodisthymnapp.ui.screens.favorites
 
-import android.content.Intent
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -30,8 +29,8 @@ import com.example.methodisthymnapp.R
 import com.example.methodisthymnapp.database.HymnEntity
 import com.example.methodisthymnapp.ui.component.*
 import com.example.methodisthymnapp.ui.screens.hymns.HYMNS_CONTENT_KEY
-import com.example.methodisthymnapp.ui.screens.hymns.INTENT_TYPE_TEXT
 import com.example.methodisthymnapp.ui.screens.hymns.elevation
+import com.example.methodisthymnapp.ui.screens.hymns.onShareActionClick
 import com.example.methodisthymnapp.ui.theme.MHATheme
 import kotlinx.coroutines.launch
 
@@ -59,13 +58,7 @@ fun FavoritesScreen(
         sheetContent = {
             ListItem(
                 modifier = Modifier.clickable(onClick = {
-                    val sendIntent: Intent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_TEXT, viewModel.clickedHymn)
-                        type = INTENT_TYPE_TEXT
-                    }
-                    val shareIntent = Intent.createChooser(sendIntent, null)
-                    context.startActivity(shareIntent)
+                    onShareActionClick(context, viewModel.clickedHymn ?: "Hymn Not Available")
                     coroutineScope.launch { sheetState.hide() }
                 }),
                 icon = {
@@ -156,7 +149,7 @@ fun FavoritesScreen(
                                 coroutineScope.launch {
                                     sheetState.show()
                                 }
-                                onFavoriteCardOverflowClick()
+                                onFavoriteCardOverflowClick.invoke()
                                 viewModel.clickedHymnId = hymn.id
                                 viewModel.getHymn(hymn.id)
                             }
