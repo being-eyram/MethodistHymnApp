@@ -152,7 +152,7 @@ fun HymnContent(
                 .paddingFromBaseline(48.dp)
                 .padding(horizontal = 16.dp),
             text = title,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Left,
             style = typography.h3
         )
 

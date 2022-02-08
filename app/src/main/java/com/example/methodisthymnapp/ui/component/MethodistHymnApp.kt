@@ -1,10 +1,8 @@
 package com.example.methodisthymnapp.ui.component
 
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.*
@@ -37,7 +35,11 @@ fun MethodistHymnApp() {
     var showBottomNavBar by remember { mutableStateOf(true) }
 
     val bottomNavBar: @Composable () -> Unit = {
-        AnimatedVisibility(visible = showBottomNavBar,enter = slideInVertically{it/2} + fadeIn(tween(90))) {
+        AnimatedVisibility(
+            visible = showBottomNavBar,
+            enter = slideInVertically { it / 2 } + fadeIn(tween(90)),
+            exit = fadeOut(tween(90)) + slideOutVertically()
+        ) {
             MHABottomNavBar(
                 currentDestination = currentDestination,
                 navController = navController,

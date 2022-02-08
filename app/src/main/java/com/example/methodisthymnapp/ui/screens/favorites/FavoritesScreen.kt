@@ -56,33 +56,15 @@ fun FavoritesScreen(
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetContent = {
-            ListItem(
-                modifier = Modifier.clickable(onClick = {
+            FavoritesModalSheetContent(
+                onShareClick = {
                     onShareActionClick(context, viewModel.clickedHymn ?: "Hymn Not Available")
                     coroutineScope.launch { sheetState.hide() }
-                }),
-                icon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_share),
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
-                    )
                 },
-                text = { Text("Share") }
-            )
-            ListItem(
-                modifier = Modifier.clickable(onClick = {
+                onRemoveFromFavoritesClick = {
                     viewModel.updateFavoriteState(viewModel.clickedHymnId, 0)
                     coroutineScope.launch { sheetState.hide() }
-                }),
-                icon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_delete),
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
-                    )
-                },
-                text = { Text("Remove from Favorites") }
+                }
             )
         }
     ) {
@@ -109,7 +91,12 @@ fun FavoritesScreen(
             LazyVerticalGrid(
                 state = listState,
                 cells = GridCells.Adaptive(minSize = 168.dp),
-                contentPadding = PaddingValues(8.dp, 16.dp),
+                contentPadding = PaddingValues(
+                    top = 16.dp,
+                    bottom = 56.dp,
+                    start = 8.dp,
+                    end = 8.dp
+                ),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -188,8 +175,7 @@ fun FavoriteItemCard(
 
     Card(
         modifier = Modifier
-            .height(112.dp)
-            .width(168.dp)
+            .size(168.dp, 112.dp)
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = { onCardClick() },
@@ -266,6 +252,33 @@ fun FavoriteItemCard(
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun FavoritesModalSheetContent(onShareClick: () -> Unit, onRemoveFromFavoritesClick: () -> Unit) {
+    ListItem(
+        modifier = Modifier.clickable(onClick = onShareClick),
+        icon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_share),
+                contentDescription = null,
+                tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
+            )
+        },
+        text = { Text("Share") }
+    )
+    ListItem(
+        modifier = Modifier.clickable(onClick = onRemoveFromFavoritesClick),
+        icon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_delete),
+                contentDescription = null,
+                tint = MaterialTheme.colors.onBackground.copy(alpha = 0.87f)
+            )
+        },
+        text = { Text("Remove from Favorites") }
+    )
 }
 
 @Preview
