@@ -20,7 +20,7 @@ import com.example.methodisthymnapp.ui.screens.SearchScreen
 import com.example.methodisthymnapp.ui.screens.canticles.CanticlesScreen
 import com.example.methodisthymnapp.ui.screens.favorites.FavoritesScreen
 import com.example.methodisthymnapp.ui.screens.hymns.CLICKED_HYMN_ID
-import com.example.methodisthymnapp.ui.screens.hymns.HYMNS_CONTENT_KEY
+import com.example.methodisthymnapp.ui.screens.hymns.HYMN_DETAILS_KEY
 import com.example.methodisthymnapp.ui.screens.hymns.HymnContentScreen
 import com.example.methodisthymnapp.ui.screens.hymns.HymnsListScreen
 import com.example.methodisthymnapp.ui.theme.MHATheme
@@ -58,11 +58,11 @@ fun MethodistHymnApp() {
 
                 composable(route = Screen.BottomNavScreen.HymnsList.route) {
                     showBottomNavBar = true
-                    HymnsListScreen(hiltViewModel(), navController)
+                    HymnsListScreen(viewModel = hiltViewModel(), navController = navController)
                 }
 
                 composable(
-                    route = Screen.FullScreen.HymnDestails.createRoute("$HYMNS_CONTENT_KEY/{$CLICKED_HYMN_ID}"),
+                    route = Screen.HymnDestails.createRoute("$HYMN_DETAILS_KEY/{$CLICKED_HYMN_ID}"),
                     arguments = listOf(navArgument(CLICKED_HYMN_ID) { type = NavType.IntType })
                 ) {
                     showBottomNavBar = false
@@ -70,7 +70,8 @@ fun MethodistHymnApp() {
                     HymnContentScreen(navController, clickedHymnId, hiltViewModel())
                 }
 
-                composable(route = Screen.FullScreen.Search.route) {
+
+                composable(route = Screen.Search.createRoute()) {
                     showBottomNavBar = false
                     SearchScreen(navController, hiltViewModel())
                 }
@@ -105,13 +106,8 @@ fun NavHostController.navigateTo(destination: String) {
 }
 
 sealed class Screen() {
-
-    sealed class FullScreen(val route: String) : Screen() {
-        object Search : FullScreen("search")
-        object HymnDestails : FullScreen("Details") {
-            fun createRoute(route: String) = "Hymns/$route"
-        }
-    }
+    object Search : Screen() { fun createRoute() = "Search" }
+    object HymnDestails : Screen() { fun createRoute(route: String) = "Hymns/Details/$route" }
 
     sealed class BottomNavScreen(val route: String, @DrawableRes val icon: Int) : Screen() {
         object Canticles : BottomNavScreen("canticles", R.drawable.ic_canticles)

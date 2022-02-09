@@ -2,7 +2,7 @@ package com.example.methodisthymnapp.ui.component
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,56 +19,7 @@ import androidx.navigation.NavHostController
 import com.example.methodisthymnapp.R
 
 
-@Composable
-fun HymnsListAppBar(
-    elevation: Dp,
-    onSearchActionClick: () -> Unit,
-) {
-    var showOverflowMenu by remember { mutableStateOf(false) }
 
-    TopAppBar(
-        backgroundColor = MaterialTheme.colors.background,
-        elevation = elevation
-    ) {
-
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Text(
-                modifier = Modifier.padding(start = 12.dp),
-                text = "Methodist Hymn App",
-                style = MaterialTheme.typography.h1,
-                color = MaterialTheme.colors.onBackground
-            )
-
-            Row(Modifier.wrapContentSize()) {
-                CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                    IconButton(onClick = onSearchActionClick) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_search_alt),
-                            contentDescription = "Search Hymns",
-                            tint = MaterialTheme.colors.onBackground
-                        )
-                    }
-                    IconButton(onClick = { showOverflowMenu = !showOverflowMenu }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_overflow_menu),
-                            contentDescription = "Sort Hymns",
-                            tint = MaterialTheme.colors.onBackground
-                        )
-                    }
-                }
-                OverflowMenu(
-                    show = showOverflowMenu,
-                    onDismissRequest = { showOverflowMenu = false }
-                )
-            }
-        }
-    }
-}
 
 
 // Bottom App Bar
@@ -188,16 +139,4 @@ fun FavoritesContextAppBar(
             }
         }
     )
-}
-
-@Composable
-fun OverflowMenu(show: Boolean, onDismissRequest: () -> Unit) {
-    DropdownMenu(expanded = show, onDismissRequest = onDismissRequest) {
-        DropdownMenuItem(onClick = { /*TODO*/ }) {
-            Text("Sort Hymns")
-        }
-        DropdownMenuItem(onClick = { /*TODO*/ }) {
-            Text("Dark Theme")
-        }
-    }
 }

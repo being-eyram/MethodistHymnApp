@@ -2,7 +2,7 @@ package com.example.methodisthymnapp.ui.screens.favorites
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.methodisthymnapp.database.HymnEntity
+import com.example.methodisthymnapp.database.Hymn
 import com.example.methodisthymnapp.reposiitory.MHARepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.buffer
@@ -13,7 +13,7 @@ import javax.inject.Inject
 class FavoritesViewModel @Inject constructor(private val repository: MHARepository) : ViewModel() {
 
     var clickedHymnId = 0
-    private var _clickedHymn: HymnEntity? = null
+    private var _clickedHymn: Hymn? = null
 
     val clickedHymn
         get() = _clickedHymn?.lyrics

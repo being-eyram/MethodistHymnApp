@@ -7,13 +7,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface HymnDao {
     @Query("SELECT * FROM hymns_table")
-    fun getAllHymns(): Flow<List<HymnEntity>>
+    fun getAllHymns(): Flow<List<Hymn>>
 
     @Query("SELECT * FROM hymns_table WHERE :id = _id ")
-    suspend fun getHymn(id: Int): HymnEntity
+    suspend fun getHymn(id: Int): Hymn
 
     @Query("SELECT * FROM hymns_table WHERE is_favorite = 1")
-    fun getFavorites(): Flow<List<HymnEntity>>
+    fun getFavorites(): Flow<List<Hymn>>
 
     @Query(
         """SELECT *
@@ -21,7 +21,7 @@ interface HymnDao {
                  JOIN hymns_fts ON hymns_fts.rowid = hymns_table._id  
                  WHERE hymns_fts MATCH :query"""
     )
-    suspend fun search(query: String): List<HymnEntity>
+    suspend fun search(query: String): List<Hymn>
 
 
     @Query(
@@ -40,5 +40,5 @@ interface HymnDao {
                  FROM hymns_table
                  WHERE _id LIKE '%' || :query || '%' """
     )
-    suspend fun search(query: Int): List<HymnEntity>
+    suspend fun search(query: Int): List<Hymn>
 }

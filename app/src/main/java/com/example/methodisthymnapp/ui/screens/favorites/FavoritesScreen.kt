@@ -26,9 +26,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.methodisthymnapp.R
-import com.example.methodisthymnapp.database.HymnEntity
+import com.example.methodisthymnapp.database.Hymn
 import com.example.methodisthymnapp.ui.component.*
-import com.example.methodisthymnapp.ui.screens.hymns.HYMNS_CONTENT_KEY
+import com.example.methodisthymnapp.ui.screens.hymns.HYMN_DETAILS_KEY
 import com.example.methodisthymnapp.ui.screens.hymns.elevation
 import com.example.methodisthymnapp.ui.screens.hymns.onShareActionClick
 import com.example.methodisthymnapp.ui.theme.MHATheme
@@ -124,9 +124,7 @@ fun FavoritesScreen(
                                     isSelected = !isSelected
                                 } else {
                                     navController.navigate(
-                                        Screen.FullScreen.HymnDestails.createRoute(
-                                            "$HYMNS_CONTENT_KEY/${hymn.id}"
-                                        )
+                                        Screen.HymnDestails.createRoute("$HYMN_DETAILS_KEY/${hymn.id}")
                                     )
                                 }
                             },
@@ -164,7 +162,7 @@ fun FavoritesScreen(
 
 @Composable
 fun FavoriteItemCard(
-    hymn: HymnEntity,
+    hymn: Hymn,
     isSelected: Boolean,
     onCardClick: () -> Unit,
     onCheckMarkClick: () -> Unit,
@@ -294,7 +292,7 @@ fun FavoritesAppBarPreview() {
 fun FavoriteItemCardPreview() {
     MHATheme {
         FavoriteItemCard(
-            HymnEntity(
+            Hymn(
                 0,
                 "On my way to the stars",
                 "Eyram Michael",

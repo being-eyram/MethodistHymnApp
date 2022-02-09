@@ -22,15 +22,14 @@ import com.example.methodisthymnapp.ui.component.HymnListCard
 import com.example.methodisthymnapp.ui.component.Screen
 import com.example.methodisthymnapp.ui.component.SearchBox
 import com.example.methodisthymnapp.ui.component.emptyString
-import com.example.methodisthymnapp.ui.screens.hymns.HYMNS_CONTENT_KEY
-import com.example.methodisthymnapp.ui.screens.hymns.HymnsListViewModel
+import com.example.methodisthymnapp.ui.screens.hymns.HYMN_DETAILS_KEY
 import com.example.methodisthymnapp.ui.screens.hymns.elevation
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchScreen(
     navController: NavHostController,
-    viewModel: HymnsListViewModel = viewModel()
+    viewModel: SearchViewModel = viewModel()
 ) {
     val searchResult by viewModel.searchResult.observeAsState()
     var search by remember { mutableStateOf("") }
@@ -80,17 +79,16 @@ fun SearchScreen(
             ) {
                 if (searchResult != null) {
                     items(searchResult!!) { hymn ->
-                        var isFavorite by remember { mutableStateOf(hymn.isFavorite != 0) }
+//                        var isFavorite by remember { mutableStateOf(hymn.isFavorite != 0) }
 
                         HymnListCard(
-                            hymn,
-                            isFavorite = isFavorite,
+                            hymn = hymn,
                             onFavoriteButtonToggle = {
-                                isFavorite = !isFavorite
-                                viewModel.updateFavoriteState(hymn.id, isFavorite.compareTo(false))
+//                                isFavorite = !isFavorite
+                                viewModel.updateFavoriteState(hymn.id,0)
                             },
                             onCardClick = {
-                                navController.navigate(Screen.FullScreen.HymnDestails.createRoute("$HYMNS_CONTENT_KEY/${hymn.id}"))
+                                navController.navigate(Screen.HymnDestails.createRoute("$HYMN_DETAILS_KEY/${hymn.id}"))
                             }
                         )
                         Spacer(Modifier.padding(top = 16.dp))

@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 
 
 @Entity(tableName = "hymns_table")
-data class HymnEntity(
+data class Hymn(
 
     @PrimaryKey
     @ColumnInfo(name = "_id")
@@ -27,7 +27,7 @@ data class HymnEntity(
 )
 
 @Entity(tableName = "hymns_fts")
-@Fts4(contentEntity = HymnEntity::class)
+@Fts4(contentEntity = Hymn::class)
 data class HymnFts(
 
     @ColumnInfo(name = "title")

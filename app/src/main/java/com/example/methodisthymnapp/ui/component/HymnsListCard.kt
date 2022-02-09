@@ -20,16 +20,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.methodisthymnapp.database.HymnEntity
+import com.example.methodisthymnapp.database.Hymn
+import com.example.methodisthymnapp.ui.screens.hymns.FALSE
 
 @Composable
 fun HymnListCard(
-    hymn: HymnEntity,
-    isFavorite: Boolean,
+    hymn: Hymn,
     onFavoriteButtonToggle: () -> Unit,
     onCardClick: () -> Unit
 ) {
-    val (num, title, author, lyrics) = hymn
+    val (num, title, author, lyrics, isFavorite) = hymn
 
     Card(
         modifier = Modifier
@@ -99,7 +99,7 @@ fun HymnListCard(
                         author = author
                     )
                     FavoriteToggleButton(
-                        isFavorite = isFavorite,
+                        isFavorite = isFavorite != FALSE,
                         onClick = onFavoriteButtonToggle
                     )
                 }

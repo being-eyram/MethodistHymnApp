@@ -1,59 +1,65 @@
 package com.example.methodisthymnapp.ui.screens.hymns
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.methodisthymnapp.database.HymnEntity
+import com.example.methodisthymnapp.database.Hymn
 import com.example.methodisthymnapp.reposiitory.MHARepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class HymnsListViewModel @Inject constructor(private val repository: MHARepository) : ViewModel() {
+    private val _uiState = MutableStateFlow(HymnListUiState())
+    val uiState: StateFlow<HymnListUiState> = _uiState
 
-    private var _searchResult = MutableLiveData<List<HymnEntity>>()
-    val searchResult: LiveData<List<HymnEntity>>
-        get() = _searchResult
 
-    fun getAllHymns() = repository.allHymns().buffer()
-
-    fun search(query: String) {
-        viewModelScope.launch {
-            val result = repository.search(sanitizeSearchQuery(query))
-            withContext(Dispatchers.Main) {
-                _searchResult.value = result
-            }
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.allHymns()
+                .map { hymns ->
+                    hymns.map {
+                        HymnListItemUiState(
+                            hymn = it,
+                            onFavoriteToggle = {
+                                updateFavoriteState(it.id, swap(it.isFavorite))
+                            }
+                        )
+                    }
+                }
+                .collect {
+                    _uiState.value = HymnListUiState(it)
+                }
         }
     }
 
-    fun search(query: Int) {
-        viewModelScope.launch {
-            val result = repository.search(query)
-            withContext(Dispatchers.Main) {
-                _searchResult.value = result
-            }
-        }
+    fun onOverflowClick() = _uiState.update { currentUiState ->
+        currentUiState.copy(isShowingOverflowMenu = true)
     }
 
-    fun updateFavoriteState(id: Int, isFavorite: Int) {
-        viewModelScope.launch {
-            withContext(Dispatchers.Main) {
-                repository.updateFavoriteState(id, isFavorite)
-            }
-        }
+    fun onDismissRequest() = _uiState.update { currentUiState ->
+        currentUiState.copy(isShowingOverflowMenu = false)
     }
 
-    private fun sanitizeSearchQuery(query: String?): String {
-        if (query == null) return ""
-        val queryWithEscapedQuotes = query.replace(Regex.fromLiteral("\""), "\"\"")
-        return "*\"$queryWithEscapedQuotes\"*"
+    private fun updateFavoriteState(id: Int, isFavorite: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateFavoriteState(id, isFavorite)
+        }
     }
 }
 
+data class HymnListUiState(
+    val hymns: List<HymnListItemUiState> = listOf(),
+    val isShowingOverflowMenu: Boolean = false
+)
 
+data class HymnListItemUiState(
+    val hymn: Hymn,
+    val onFavoriteToggle: () -> Unit,
+)
 
+fun swap(isFavorite: Int) = if (isFavorite == FALSE) TRUE else FALSE
+const val FALSE = 0
+const val TRUE = 1
