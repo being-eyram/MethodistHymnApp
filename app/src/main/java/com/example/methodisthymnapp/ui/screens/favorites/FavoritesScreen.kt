@@ -1,37 +1,36 @@
 package com.example.methodisthymnapp.ui.screens.favorites
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.methodisthymnapp.R
-import com.example.methodisthymnapp.database.Hymn
-import com.example.methodisthymnapp.ui.component.*
+import com.example.methodisthymnapp.ui.component.AuthorTag
+import com.example.methodisthymnapp.ui.component.Screen
+import com.example.methodisthymnapp.ui.component.paddHymnNum
 import com.example.methodisthymnapp.ui.screens.hymns.HYMN_DETAILS_KEY
 import com.example.methodisthymnapp.ui.screens.hymns.elevation
 import com.example.methodisthymnapp.ui.screens.hymns.onShareActionClick
-import com.example.methodisthymnapp.ui.theme.MHATheme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -40,17 +39,15 @@ import kotlinx.coroutines.launch
 fun FavoritesScreen(
     viewModel: FavoritesViewModel = viewModel(),
     navController: NavHostController,
+    listState: LazyListState = rememberLazyListState(),
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    sheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
     onFavoriteCardOverflowClick: () -> Unit,
     onBottomSheetDismiss: () -> Unit,
 ) {
 
-    val favorites by viewModel.getFavorites().collectAsState(listOf())
-    val selectedCardMap = mutableMapOf<Int, Boolean>()
-    var selectedCount by remember { mutableStateOf(0) }
-    var isReturnClick by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
+    val uiState = viewModel.uiState.collectAsState().value
+    var selectedCount by remember { mutableStateOf(uiState.selectedCount) }
     val context = LocalContext.current
 
     ModalBottomSheetLayout(
@@ -58,11 +55,11 @@ fun FavoritesScreen(
         sheetContent = {
             FavoritesModalSheetContent(
                 onShareClick = {
-                    onShareActionClick(context, viewModel.clickedHymn ?: "Hymn Not Available")
+                    onShareActionClick(context, viewModel.getLyricsFor(uiState.clickedOverflowId))
                     coroutineScope.launch { sheetState.hide() }
                 },
                 onRemoveFromFavoritesClick = {
-                    viewModel.updateFavoriteState(viewModel.clickedHymnId, 0)
+                    viewModel.onRemoveFromFavoritesClick(uiState.clickedOverflowId)
                     coroutineScope.launch { sheetState.hide() }
                 }
             )
@@ -73,18 +70,8 @@ fun FavoritesScreen(
                 FavoritesAppBar(
                     elevation = listState.elevation,
                     selectedCount = selectedCount,
-                    onReturnClick = {
-                        selectedCardMap.clear()
-                        selectedCount = 0
-                        isReturnClick = true
-                    },
-                    onDeleteClick = {
-                        // Unfavourite Items using their Ids if selected
-                        val idsToUnfavorite = selectedCardMap.filter { id -> id.value }.keys
-                        idsToUnfavorite.forEach { viewModel.updateFavoriteState(it, 0) }
-                        selectedCardMap.clear()
-                        selectedCount = 0
-                    }
+                    onReturnClick = viewModel::onReturnClick,
+                    onDeleteClick = viewModel::onDeleteClick
                 )
             }
         ) {
@@ -101,85 +88,70 @@ fun FavoritesScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
-                items(favorites) { hymn ->
-                    /**
-                     * It seems to me that because of the key is [isSelected] is generated
-                     * for each hymn in the favorites list.
-                     */
-                    key(hymn.id) {
-                        var isSelected by remember { mutableStateOf(false) }
-                        /**
-                         * Reset the value of remembered value of isSelected.
-                         * This is done to prevent the AppBar from reappearing since the value of
-                         * isSelected is remembered for each.
-                         */
-                        if (isReturnClick) isSelected = false
-                        //store in a Map the Id of the hymn to it's selection truthValue
-                        //selectedCardMap[hymn.id] = isSelected
+                items(uiState.favorites) { favoriteHymn ->
+                    key(favoriteHymn.id) {
                         FavoriteItemCard(
-                            hymn = hymn,
-                            isSelected = isSelected,
+                            id = favoriteHymn.id,
+                            title = favoriteHymn.title,
+                            author = favoriteHymn.author,
+                            isSelected = favoriteHymn.isSelected,
                             onCardClick = {
+                                // the selectedCount value I get over here is consistently different from
+                                // one at the top. Try looking into it.
                                 if (selectedCount > 0) {
-                                    isSelected = !isSelected
+                                    favoriteHymn.toggleSelectOnClick(favoriteHymn.id)
                                 } else {
                                     navController.navigate(
-                                        Screen.HymnDestails.createRoute("$HYMN_DETAILS_KEY/${hymn.id}")
+                                        Screen.HymnDestails.createRoute("$HYMN_DETAILS_KEY/${favoriteHymn.id}")
                                     )
                                 }
                             },
-                            onCheckMarkClick = { isSelected = !isSelected },
-                            onLongPress = { isSelected = !isSelected },
+                            onCheckMarkClick = { favoriteHymn.onCheckMarkClick(favoriteHymn.id) },
+                            onLongPress = { favoriteHymn.onLongPress(favoriteHymn.id) },
                             onOverflowMenuClick = {
                                 coroutineScope.launch {
+                                    onFavoriteCardOverflowClick.invoke()
                                     sheetState.show()
+                                    //putting this method in the coroutine makes it
+                                    // run as desired. I don't know why yet. But I intend to find out.
+                                    favoriteHymn.onOverflowMenuClick(favoriteHymn.id)
                                 }
-                                onFavoriteCardOverflowClick.invoke()
-                                viewModel.clickedHymnId = hymn.id
-                                viewModel.getHymn(hymn.id)
+
                             }
                         )
-
-                        SideEffect {
-                            selectedCardMap[hymn.id] = isSelected
-                            selectedCount = selectedCardMap.count { it.value }
-                            //Reset the value of isReturnClick after recomposition.
-                            isReturnClick = false
+                    }
+                    LaunchedEffect(uiState, sheetState.currentValue) {
+                        selectedCount = uiState.selectedCount
+                        if (!sheetState.isVisible) {
+                            onBottomSheetDismiss.invoke()
                         }
                     }
                 }
             }
         }
     }
-
-    LaunchedEffect(sheetState.currentValue) {
-        //If sheet is not visible invoke the callback below.
-        if (!sheetState.isVisible) {
-            onBottomSheetDismiss.invoke()
-        }
-    }
 }
 
 @Composable
 fun FavoriteItemCard(
-    hymn: Hymn,
+    id: Int,
+    title: String,
+    author: String,
     isSelected: Boolean,
     onCardClick: () -> Unit,
     onCheckMarkClick: () -> Unit,
     onOverflowMenuClick: () -> Unit,
     onLongPress: () -> Unit
 ) {
-    val (num, title, author) = hymn
 
     Card(
         modifier = Modifier
             .size(168.dp, 112.dp)
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onTap = { onCardClick() },
-                    onLongPress = { onLongPress() },
+                    onTap = { onCardClick.invoke() },
+                    onLongPress = { onLongPress.invoke() },
                 )
-                //try do a detect drag gesture feature like selection on an iphone.
             },
         elevation = 0.dp,
         border = BorderStroke(width = Dp.Hairline, color = Color.Gray),
@@ -201,7 +173,7 @@ fun FavoriteItemCard(
                         modifier = Modifier
                             .width(45.dp)
                             .paddingFromBaseline(27.dp),
-                        text = paddHymnNum(num),
+                        text = paddHymnNum(id),
                         color = MaterialTheme.colors.onBackground,
                         style = MaterialTheme.typography.h2
                     )
@@ -279,31 +251,106 @@ fun FavoritesModalSheetContent(onShareClick: () -> Unit, onRemoveFromFavoritesCl
     )
 }
 
-@Preview
+// App Bars
+
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun FavoritesAppBarPreview() {
-    MHATheme {
-        FavoritesDefaultAppBar(elevation = 0.dp)
+fun FavoritesAppBar(
+    elevation: Dp,
+    selectedCount: Int,
+    onReturnClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    var showContextAppBar by remember { mutableStateOf(false) }
+    showContextAppBar = selectedCount > 0
+
+    AnimatedContent(
+        targetState = showContextAppBar,
+        transitionSpec = {
+            scaleIn(initialScale = 0.50f, animationSpec = tween(220, delayMillis = 90)) +
+                    fadeIn(animationSpec = tween(220, delayMillis = 90)) with
+                    fadeOut(animationSpec = tween(90))
+        },
+        contentAlignment = Alignment.Center
+    ) { state ->
+        when {
+            state -> FavoritesContextAppBar(
+                selectedCount = selectedCount,
+                onReturnClick = onReturnClick,
+                onDeleteClick = onDeleteClick
+            )
+
+            else -> FavoritesDefaultAppBar(elevation = elevation)
+        }
     }
 }
 
-@Preview
 @Composable
-fun FavoriteItemCardPreview() {
-    MHATheme {
-        FavoriteItemCard(
-            Hymn(
-                0,
-                "On my way to the stars",
-                "Eyram Michael",
-                "There is no lyrics bruh",
-                1
-            ),
-            isSelected = false,
-            onCardClick = {},
-            onLongPress = {},
-            onCheckMarkClick = {},
-            onOverflowMenuClick = {}
-        )
-    }
+fun FavoritesDefaultAppBar(elevation: Dp) {
+    TopAppBar(
+        elevation = elevation,
+        backgroundColor = MaterialTheme.colors.background,
+        contentColor = MaterialTheme.colors.onBackground,
+        title = { Text("Favorites") }
+    )
 }
+
+@Composable
+fun FavoritesContextAppBar(
+    selectedCount: Int,
+    onReturnClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    TopAppBar(
+        title = { Text("$selectedCount") },
+        backgroundColor = MaterialTheme.colors.background,
+        navigationIcon = {
+            IconButton(onClick = onReturnClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_return),
+                    contentDescription = null,
+                    tint = MaterialTheme.colors.onBackground
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = onDeleteClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_delete),
+                    contentDescription = null,
+                    tint = MaterialTheme.colors.onBackground
+                )
+            }
+        }
+    )
+}
+
+
+//@Preview
+//@Composable
+//fun FavoritesAppBarPreview() {
+//    MHATheme {
+//        FavoritesDefaultAppBar(elevation = 0.dp)
+//    }
+//}
+
+//@Preview
+//@Composable
+//fun FavoriteItemCardPreview() {
+//    MHATheme {
+//        FavoriteItemCard(
+//            Hymn(
+//                0,
+//                "On my way to the stars",
+//                "Eyram Michael",
+//                "There is no lyrics bruh",
+//                1
+//            ),
+//            isSelected = false,
+//            onCardClick = {},
+//            onLongPress = {},
+//            onCheckMarkClick = {},
+//            onOverflowMenuClick = {}
+//        )
+//    }
+//}

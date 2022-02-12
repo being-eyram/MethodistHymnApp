@@ -15,23 +15,18 @@ class HymnsListViewModel @Inject constructor(private val repository: MHAReposito
     private val _uiState = MutableStateFlow(HymnListUiState())
     val uiState: StateFlow<HymnListUiState> = _uiState
 
-
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.allHymns()
-                .map { hymns ->
-                    hymns.map {
-                        HymnListItemUiState(
-                            hymn = it,
-                            onFavoriteToggle = {
-                                updateFavoriteState(it.id, swap(it.isFavorite))
-                            }
-                        )
-                    }
+            repository.allHymns().map { hymns ->
+                hymns.map {
+                    HymnListItemUiState(
+                        hymn = it,
+                        onFavoriteToggle = { updateFavoriteState(it.id, swap(it.isFavorite)) }
+                    )
                 }
-                .collect {
-                    _uiState.value = HymnListUiState(it)
-                }
+            }.collect {
+                _uiState.value = HymnListUiState(it)
+            }
         }
     }
 

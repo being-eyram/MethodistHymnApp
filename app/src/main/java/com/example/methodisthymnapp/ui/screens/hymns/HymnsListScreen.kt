@@ -46,11 +46,9 @@ fun HymnsListScreen(
             HymnsListAppBar(
                 elevation = listState.elevation,
                 showOverflowMenu = isShowingOverflowMenu,
-                onOverflowClick = viewModel::onOverflowClick ,
+                onOverflowClick = viewModel::onOverflowClick,
                 onDismissRequest = viewModel::onDismissRequest,
-                onSearchActionClick = {
-                    navController.navigate(Screen.Search.createRoute())
-                },
+                onSearchActionClick = { navController.navigate(Screen.Search.createRoute()) },
             )
         },
         floatingActionButton = {
@@ -58,9 +56,7 @@ fun HymnsListScreen(
                 ScrollToBottomButton(
                     modifier = Modifier.padding(bottom = 56.dp),
                     onClick = {
-                        coroutineScope.launch {
-                            listState.scrollToItem(hymns.lastIndex)
-                        }
+                        coroutineScope.launch { listState.scrollToItem(hymns.lastIndex) }
                     }
                 )
             }
