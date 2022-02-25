@@ -12,22 +12,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HymnsListViewModel @Inject constructor(private val repository: MHARepository) : ViewModel() {
+
     private val _uiState = MutableStateFlow(HymnListUiState())
     val uiState: StateFlow<HymnListUiState> = _uiState
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.allHymns().map { hymns ->
-                hymns.map {
-                    HymnListItemUiState(
-                        hymn = it,
-                        onFavoriteToggle = { updateFavoriteState(it.id, swap(it.isFavorite)) }
-                    )
-                }
-            }.collect {
-                _uiState.value = HymnListUiState(it)
-            }
-        }
+        fetchAllHymns()
     }
 
     fun onOverflowClick() = _uiState.update { currentUiState ->
@@ -43,6 +33,21 @@ class HymnsListViewModel @Inject constructor(private val repository: MHAReposito
             repository.updateFavoriteState(id, isFavorite)
         }
     }
+
+    private fun fetchAllHymns() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.allHymns().map { hymns ->
+                hymns.map {
+                    HymnListItemUiState(
+                        hymn = it,
+                        onFavoriteToggle = { updateFavoriteState(it.id, invert(it.isFavorite)) }
+                    )
+                }
+            }.collect {
+                _uiState.value = HymnListUiState(it)
+            }
+        }
+    }
 }
 
 data class HymnListUiState(
@@ -55,6 +60,6 @@ data class HymnListItemUiState(
     val onFavoriteToggle: () -> Unit,
 )
 
-fun swap(isFavorite: Int) = if (isFavorite == FALSE) TRUE else FALSE
+fun invert(isFavorite: Int) = if (isFavorite == FALSE) TRUE else FALSE
 const val FALSE = 0
 const val TRUE = 1

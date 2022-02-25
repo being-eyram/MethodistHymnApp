@@ -38,14 +38,14 @@ fun HymnsListScreen(
 
     val uiState = viewModel.uiState.collectAsState().value
     val hymns = uiState.hymns
-    val isShowingOverflowMenu = uiState.isShowingOverflowMenu
     val showScrollToBottomButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 20 } }
+    val contentPadding  =  PaddingValues(8.dp,8.dp, 8.dp, 56.dp)
 
     Scaffold(
         topBar = {
             HymnsListAppBar(
                 elevation = listState.elevation,
-                showOverflowMenu = isShowingOverflowMenu,
+                showOverflowMenu =  uiState.isShowingOverflowMenu,
                 onOverflowClick = viewModel::onOverflowClick,
                 onDismissRequest = viewModel::onDismissRequest,
                 onSearchActionClick = { navController.navigate(Screen.Search.createRoute()) },
@@ -65,12 +65,7 @@ fun HymnsListScreen(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = listState,
-            contentPadding = PaddingValues(
-                top = 8.dp,
-                bottom = it.calculateBottomPadding(),
-                start = 8.dp,
-                end = 8.dp
-            )
+            contentPadding = contentPadding
         ) {
 
             items(hymns, key = { hymnListUiState -> hymnListUiState.hymn.id }) { hymnListUiState ->

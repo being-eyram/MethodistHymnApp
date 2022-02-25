@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -46,7 +47,13 @@ fun SearchBox(
     SearchFieldLayout(
         modifier = modifier,
         search = search,
-        placeholder = { Text(placeholder, fontSize = 16.sp) },
+        placeholder = {
+            Text(
+                placeholder,
+                fontSize = 16.sp,
+                color = MaterialTheme.colors.onBackground
+            )
+        },
         onSearchTermChange = onSearchTermChange,
         onClearClick = onClearClick,
         onReturnClick = onReturnClick,

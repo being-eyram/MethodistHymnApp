@@ -86,7 +86,7 @@ class FavoritesViewModel @Inject constructor(private val repository: MHAReposito
         }
     }
 
-    /** Find and toggle on or off state for [FavoriteListItemUiState] id passed */
+    /** Find and toggle selected or unselected state for [FavoriteListItemUiState] id passed */
     private fun toggleSelectFor(
         id: Int,
         isSelected: Boolean,
@@ -101,7 +101,7 @@ class FavoritesViewModel @Inject constructor(private val repository: MHAReposito
         return favoriteHymns
     }
 
-    /** Update uiState with [id] of the particular favorites whose overflow was clicked */
+    /** Update uiState with [id] of the favorite whose overflow was clicked */
     private fun onOverflowMenuClick(id: Int) = _uiState.update { currentUiState ->
         currentUiState.copy(clickedOverflowId = id)
     }

@@ -87,8 +87,6 @@ fun FavoriteToggleButton(
             targetState = isFavorite,
             transitionSpec = {
                 ContentTransform(
-                    //TODO : Change the state to boolean
-
                     /** If target State is yes then the enter animation should come with a ripple else it
                      * should (scale + slide)
                      * I faced a bug where I didn't compare the target state with the initial state and
