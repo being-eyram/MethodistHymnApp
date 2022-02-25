@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.methodisthymnapp.database.MHADatabase
+import com.example.methodisthymnapp.data.MHADatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,4 +1,4 @@
-package com.example.methodisthymnapp.database
+package com.example.methodisthymnapp.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

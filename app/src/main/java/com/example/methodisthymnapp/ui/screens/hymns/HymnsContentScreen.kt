@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.methodisthymnapp.R
-import com.example.methodisthymnapp.database.Hymn
+import com.example.methodisthymnapp.data.Hymn
 
 private val MAX_LYRICS_TEXT_SIZE = 24.sp
 const val INTENT_TYPE_TEXT = "text/plain"

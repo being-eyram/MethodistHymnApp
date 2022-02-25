@@ -1,6 +1,6 @@
 package com.example.methodisthymnapp.reposiitory
 
-import com.example.methodisthymnapp.database.HymnDao
+import com.example.methodisthymnapp.data.HymnDao
 import javax.inject.Inject
 
 
