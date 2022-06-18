@@ -17,7 +17,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.methodisthymnapp.ui.component.HymnListCard
 import com.example.methodisthymnapp.ui.component.Screen
@@ -29,7 +29,7 @@ import com.example.methodisthymnapp.ui.screens.hymns.elevation
 @Composable
 fun SearchScreen(
     navController: NavHostController,
-    viewModel: SearchViewModel = viewModel(),
+    viewModel: SearchViewModel = hiltViewModel(),
     listState: LazyListState = rememberLazyListState()
 ) {
     val uiState = viewModel.uiState.collectAsState().value

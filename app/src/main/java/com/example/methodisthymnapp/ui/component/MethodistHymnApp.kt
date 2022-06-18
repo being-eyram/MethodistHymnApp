@@ -58,7 +58,7 @@ fun MethodistHymnApp() {
 
                 composable(route = Screen.BottomNavScreen.HymnsList.route) {
                     showBottomNavBar = true
-                    HymnsListScreen(viewModel = hiltViewModel(), navController = navController)
+                    HymnsListScreen(navController = navController)
                 }
 
                 composable(
@@ -73,7 +73,7 @@ fun MethodistHymnApp() {
 
                 composable(route = Screen.Search.createRoute()) {
                     showBottomNavBar = false
-                    SearchScreen(navController, hiltViewModel())
+                    SearchScreen(navController)
                 }
 
                 composable(route = Screen.BottomNavScreen.Canticles.route) {
@@ -83,7 +83,6 @@ fun MethodistHymnApp() {
 
                 composable(route = Screen.BottomNavScreen.Favorites.route) {
                     FavoritesScreen(
-                        viewModel = hiltViewModel(),
                         navController = navController,
                         onFavoriteCardOverflowClick = { showBottomNavBar = false },
                         onBottomSheetDismiss = { showBottomNavBar = true }
