@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.methodisthymnapp.ui.screens.Screen
 import dev.olshevski.navigation.reimagined.NavController
-import dev.olshevski.navigation.reimagined.navigate
 
 
 // Bottom Nav Bar
@@ -46,7 +45,7 @@ fun MHABottomNavBar(
                         fontStyle = FontStyle.Normal
                     )
                 },
-                onClick = { navController.navigate(screen) },
+                onClick = { navController.navigateTo(screen) },
                 icon = {
                     Icon(
                         painter = painterResource(id = screen.icon),

@@ -8,11 +8,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import com.example.methodisthymnapp.di.viewModelEntryPoint
 import com.example.methodisthymnapp.ui.screens.Screen
-import com.example.methodisthymnapp.ui.screens.search.SearchScreen
 import com.example.methodisthymnapp.ui.screens.canticles.CanticlesScreen
 import com.example.methodisthymnapp.ui.screens.favorites.FavoritesScreen
 import com.example.methodisthymnapp.ui.screens.hymns.HymnDetailsScreen
 import com.example.methodisthymnapp.ui.screens.hymns.HymnsListScreen
+import com.example.methodisthymnapp.ui.screens.search.SearchScreen
 import com.example.methodisthymnapp.ui.theme.MHATheme
 import dev.olshevski.navigation.reimagined.*
 
