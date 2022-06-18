@@ -44,7 +44,7 @@ fun SearchScreen(
                 listState = listState,
                 searchFocusRequester = focusRequester,
                 query = uiState.query.value,
-                onClearClick = {},
+                onClearClick = viewModel::onClearClick,
                 onSearchTermChange = viewModel::onSearchTermChange ,
                 onReturnClick = navController::pop,
                 keyboardController = keyboardController

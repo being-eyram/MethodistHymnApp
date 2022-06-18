@@ -1,11 +1,11 @@
 package com.example.methodisthymnapp.ui.screens.search
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.methodisthymnapp.reposiitory.MHARepository
+import com.example.methodisthymnapp.ui.component.emptyString
 import com.example.methodisthymnapp.ui.screens.hymns.HymnListItemUiState
 import com.example.methodisthymnapp.ui.screens.hymns.invert
 import kotlinx.coroutines.Dispatchers
@@ -64,16 +64,14 @@ class SearchViewModel @Inject constructor(private val repository: MHARepository)
 
     fun onSearchTermChange(query: String) {
         searchQuery.value = query
-
         val searchIsHymnNumber = query.matches("""\d+""".toRegex())
         if (searchIsHymnNumber) search(query.toInt()) else search(query)
-        Log.i("MainActivity", searchQuery.value)
     }
 
-//
-//    fun onClearClick() {
-//        _uiState.update { currentUiState -> currentUiState.copy(query = emptyString) }
-//    }
+
+    fun onClearClick() {
+        searchQuery.value = emptyString
+    }
 
     private fun updateFavoriteState(id: Int, isFavorite: Int) {
         viewModelScope.launch(Dispatchers.IO) {
