@@ -21,15 +21,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.example.methodisthymnapp.R
 import com.example.methodisthymnapp.ui.component.AuthorTag
-import com.example.methodisthymnapp.ui.component.Screen
+import com.example.methodisthymnapp.ui.component.navigateTo
 import com.example.methodisthymnapp.ui.component.paddHymnNum
-import com.example.methodisthymnapp.ui.screens.hymns.HYMN_DETAILS_KEY
+import com.example.methodisthymnapp.ui.screens.Screen
 import com.example.methodisthymnapp.ui.screens.hymns.elevation
 import com.example.methodisthymnapp.ui.screens.hymns.onShareActionClick
+import dev.olshevski.navigation.reimagined.NavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -37,8 +36,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun FavoritesScreen(
-    viewModel: FavoritesViewModel = hiltViewModel(),
-    navController: NavHostController,
+    viewModel: FavoritesViewModel,
+    navController: NavController<Screen>,
     listState: LazyListState = rememberLazyListState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     sheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
@@ -101,8 +100,8 @@ fun FavoritesScreen(
                                 if (selectedCount > 0) {
                                     favoriteHymn.toggleSelectOnClick(favoriteHymn.id)
                                 } else {
-                                    navController.navigate(
-                                        Screen.HymnDestails.createRoute("$HYMN_DETAILS_KEY/${favoriteHymn.id}")
+                                    navController.navigateTo(
+                                        Screen.SecondaryScreen.HymnDetails(favoriteHymn.id)
                                     )
                                 }
                             },

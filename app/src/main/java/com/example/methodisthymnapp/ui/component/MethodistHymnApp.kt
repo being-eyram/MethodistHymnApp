@@ -1,37 +1,30 @@
 package com.example.methodisthymnapp.ui.component
 
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.*
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavHostController
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.example.methodisthymnapp.R
-import com.example.methodisthymnapp.ui.screens.SearchScreen
+import androidx.compose.ui.platform.LocalContext
+import com.example.methodisthymnapp.di.viewModelEntryPoint
+import com.example.methodisthymnapp.ui.screens.Screen
+import com.example.methodisthymnapp.ui.screens.search.SearchScreen
 import com.example.methodisthymnapp.ui.screens.canticles.CanticlesScreen
 import com.example.methodisthymnapp.ui.screens.favorites.FavoritesScreen
-import com.example.methodisthymnapp.ui.screens.hymns.CLICKED_HYMN_ID
-import com.example.methodisthymnapp.ui.screens.hymns.HYMN_DETAILS_KEY
-import com.example.methodisthymnapp.ui.screens.hymns.HymnContentScreen
+import com.example.methodisthymnapp.ui.screens.hymns.HymnDetailsScreen
 import com.example.methodisthymnapp.ui.screens.hymns.HymnsListScreen
 import com.example.methodisthymnapp.ui.theme.MHATheme
+import dev.olshevski.navigation.reimagined.*
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MethodistHymnApp() {
-    val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
+    val navController = rememberNavController<Screen>(
+        startDestination = Screen.PrimaryScreen.HymnsList
+    )
+    val navBackStackEntry = navController.backstack.entries.last()
+    val currentDestination = navBackStackEntry.destination
     var showBottomNavBar by remember { mutableStateOf(true) }
 
     val bottomNavBar: @Composable () -> Unit = {
@@ -48,45 +41,55 @@ fun MethodistHymnApp() {
     }
 
     MHATheme {
-        Scaffold(
-            bottomBar = bottomNavBar
-        ) {
-            NavHost(
-                navController = navController,
-                startDestination = Screen.BottomNavScreen.HymnsList.route
-            ) {
+        Scaffold(bottomBar = bottomNavBar) {
 
-                composable(route = Screen.BottomNavScreen.HymnsList.route) {
-                    showBottomNavBar = true
-                    HymnsListScreen(navController = navController)
-                }
+            val context = LocalContext.current
+            val viewModelEntryPoint = context.viewModelEntryPoint
 
-                composable(
-                    route = Screen.HymnDestails.createRoute("$HYMN_DETAILS_KEY/{$CLICKED_HYMN_ID}"),
-                    arguments = listOf(navArgument(CLICKED_HYMN_ID) { type = NavType.IntType })
-                ) {
-                    showBottomNavBar = false
-                    val clickedHymnId = it.arguments?.getInt(CLICKED_HYMN_ID)!!
-                    HymnContentScreen(navController, clickedHymnId, hiltViewModel())
-                }
+            NavBackHandler(navController)
 
+            NavHost(controller = navController) { screen ->
 
-                composable(route = Screen.Search.createRoute()) {
-                    showBottomNavBar = false
-                    SearchScreen(navController)
-                }
+                when (screen) {
 
-                composable(route = Screen.BottomNavScreen.Canticles.route) {
-                    showBottomNavBar = true
-                    CanticlesScreen()
-                }
+                    is Screen.PrimaryScreen.HymnsList -> {
+                        showBottomNavBar = true
+                        HymnsListScreen(
+                            navController = navController,
+                            viewModel = viewModelEntryPoint.hymnsListViewModel()
+                        )
+                    }
 
-                composable(route = Screen.BottomNavScreen.Favorites.route) {
-                    FavoritesScreen(
-                        navController = navController,
-                        onFavoriteCardOverflowClick = { showBottomNavBar = false },
-                        onBottomSheetDismiss = { showBottomNavBar = true }
-                    )
+                    is Screen.PrimaryScreen.Canticles -> {
+                        showBottomNavBar = true
+                        CanticlesScreen()
+                    }
+
+                    is Screen.PrimaryScreen.Favorites -> {
+                        FavoritesScreen(
+                            navController = navController,
+                            viewModel = viewModelEntryPoint.favoritesViewModel(),
+                            onFavoriteCardOverflowClick = { showBottomNavBar = false }
+                        ) { showBottomNavBar = true }
+                    }
+
+                    is Screen.SecondaryScreen.HymnDetails -> {
+                        showBottomNavBar = false
+                        val clickedHymnId = screen.hymnNumber
+                        HymnDetailsScreen(
+                            navController = navController,
+                            viewModel = viewModelEntryPoint.hymnDetailsViewModel(),
+                            clickedHymnId = clickedHymnId
+                        )
+                    }
+
+                    is Screen.SecondaryScreen.Search -> {
+                        showBottomNavBar = false
+                        SearchScreen(
+                            navController = navController,
+                            viewModel = viewModelEntryPoint.searchViewModel()
+                        )
+                    }
                 }
             }
         }
@@ -94,23 +97,8 @@ fun MethodistHymnApp() {
 }
 
 
-fun NavHostController.navigateTo(destination: String) {
-    navigate(destination) {
-        restoreState = true
-        launchSingleTop = true
-        popUpTo(graph.findStartDestination().id) {
-            saveState = true
-        }
-    }
-}
-
-sealed class Screen() {
-    object Search : Screen() { fun createRoute() = "Search" }
-    object HymnDestails : Screen() { fun createRoute(route: String) = "Hymns/Details/$route" }
-
-    sealed class BottomNavScreen(val route: String, @DrawableRes val icon: Int) : Screen() {
-        object Canticles : BottomNavScreen("canticles", R.drawable.ic_canticles)
-        object Favorites : BottomNavScreen("favorites", R.drawable.ic_favorite_button_active)
-        object HymnsList : BottomNavScreen("hymns", R.drawable.ic_hymns)
+fun NavController<Screen>.navigateTo(destination: Screen) {
+    if (!this.moveToTop { it == destination }) {
+        this.navigate(destination)
     }
 }

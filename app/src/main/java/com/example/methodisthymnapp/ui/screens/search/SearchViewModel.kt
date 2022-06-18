@@ -1,17 +1,16 @@
-package com.example.methodisthymnapp.ui.screens
+package com.example.methodisthymnapp.ui.screens.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.methodisthymnapp.reposiitory.MHARepository
 import com.example.methodisthymnapp.ui.screens.hymns.HymnListItemUiState
 import com.example.methodisthymnapp.ui.screens.hymns.invert
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
+//@HiltViewModel
 class SearchViewModel @Inject constructor(private val repository: MHARepository) : ViewModel() {
 
     private var _uiState = MutableStateFlow(SearchUiState())

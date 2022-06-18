@@ -3,14 +3,13 @@ package com.example.methodisthymnapp.ui.screens.favorites
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.methodisthymnapp.reposiitory.MHARepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
+//@HiltViewModel
 class FavoritesViewModel @Inject constructor(private val repository: MHARepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FavoritesUiState())

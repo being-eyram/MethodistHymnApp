@@ -1,4 +1,4 @@
-package com.example.methodisthymnapp.ui.screens
+package com.example.methodisthymnapp.ui.screens.search
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,19 +17,19 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.example.methodisthymnapp.ui.component.HymnListCard
-import com.example.methodisthymnapp.ui.component.Screen
 import com.example.methodisthymnapp.ui.component.SearchBox
-import com.example.methodisthymnapp.ui.screens.hymns.HYMN_DETAILS_KEY
+import com.example.methodisthymnapp.ui.component.navigateTo
+import com.example.methodisthymnapp.ui.screens.Screen
 import com.example.methodisthymnapp.ui.screens.hymns.elevation
+import dev.olshevski.navigation.reimagined.NavController
+import dev.olshevski.navigation.reimagined.pop
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchScreen(
-    navController: NavHostController,
-    viewModel: SearchViewModel = hiltViewModel(),
+    navController: NavController<Screen>,
+    viewModel: SearchViewModel,
     listState: LazyListState = rememberLazyListState()
 ) {
     val uiState = viewModel.uiState.collectAsState().value
@@ -51,7 +51,7 @@ fun SearchScreen(
                     query = it
                     viewModel.onSearchTermChange(query)
                 },
-                onReturnClick = { navController.navigateUp() },
+                onReturnClick = { navController.pop() },
                 keyboardController = keyboardController
             )
         }
@@ -70,8 +70,8 @@ fun SearchScreen(
                         hymn = searchUiState.hymn,
                         onFavoriteButtonToggle = { searchUiState.onFavoriteToggle() },
                         onCardClick = {
-                            navController.navigate(
-                                Screen.HymnDestails.createRoute("$HYMN_DETAILS_KEY/${searchUiState.hymn.id}")
+                            navController.navigateTo(
+                                Screen.SecondaryScreen.HymnDetails(searchUiState.hymn.id)
                             )
                         }
                     )

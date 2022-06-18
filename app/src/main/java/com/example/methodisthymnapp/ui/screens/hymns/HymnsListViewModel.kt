@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
+//@HiltViewModel
 class HymnsListViewModel @Inject constructor(private val repository: MHARepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HymnListUiState())

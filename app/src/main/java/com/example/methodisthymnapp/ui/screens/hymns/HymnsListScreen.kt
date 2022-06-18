@@ -19,36 +19,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.example.methodisthymnapp.R
 import com.example.methodisthymnapp.ui.component.HymnListCard
-import com.example.methodisthymnapp.ui.component.Screen
+import com.example.methodisthymnapp.ui.component.navigateTo
+import com.example.methodisthymnapp.ui.screens.Screen
+import dev.olshevski.navigation.reimagined.NavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HymnsListScreen(
-    viewModel: HymnsListViewModel = hiltViewModel(),
+    viewModel: HymnsListViewModel,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     listState: LazyListState = rememberLazyListState(),
-    navController: NavHostController,
+    navController: NavController<Screen>,
 ) {
 
     val uiState = viewModel.uiState.collectAsState().value
     val hymns = uiState.hymns
     val showScrollToBottomButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 20 } }
-    val contentPadding  =  PaddingValues(8.dp,8.dp, 8.dp, 56.dp)
+    val contentPadding = PaddingValues(8.dp, 8.dp, 8.dp, 56.dp)
 
     Scaffold(
         topBar = {
             HymnsListAppBar(
                 elevation = listState.elevation,
-                showOverflowMenu =  uiState.isShowingOverflowMenu,
+                showOverflowMenu = uiState.isShowingOverflowMenu,
                 onOverflowClick = viewModel::onOverflowClick,
                 onDismissRequest = viewModel::onDismissRequest,
-                onSearchActionClick = { navController.navigate(Screen.Search.createRoute()) },
+                onSearchActionClick = {
+                    navController.navigateTo(Screen.SecondaryScreen.Search)
+                },
             )
         },
         floatingActionButton = {
@@ -56,7 +58,9 @@ fun HymnsListScreen(
                 ScrollToBottomButton(
                     modifier = Modifier.padding(bottom = 56.dp),
                     onClick = {
-                        coroutineScope.launch { listState.scrollToItem(hymns.lastIndex) }
+                        coroutineScope.launch {
+                            listState.scrollToItem(hymns.lastIndex)
+                        }
                     }
                 )
             }
@@ -73,8 +77,8 @@ fun HymnsListScreen(
                     hymn = hymnListUiState.hymn,
                     onFavoriteButtonToggle = { hymnListUiState.onFavoriteToggle() },
                     onCardClick = {
-                        navController.navigate(
-                            Screen.HymnDestails.createRoute("$HYMN_DETAILS_KEY/${hymnListUiState.hymn.id}")
+                        navController.navigateTo(
+                            Screen.SecondaryScreen.HymnDetails(hymnListUiState.hymn.id)
                         )
                     }
                 )

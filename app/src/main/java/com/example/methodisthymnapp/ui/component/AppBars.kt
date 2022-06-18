@@ -1,39 +1,30 @@
 package com.example.methodisthymnapp.ui.component
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavHostController
-import com.example.methodisthymnapp.R
+import com.example.methodisthymnapp.ui.screens.Screen
+import dev.olshevski.navigation.reimagined.NavController
+import dev.olshevski.navigation.reimagined.navigate
 
 
-
-
-
-// Bottom App Bar
-
+// Bottom Nav Bar
 val bottomNavScreens = listOf(
-    Screen.BottomNavScreen.HymnsList,
-    Screen.BottomNavScreen.Canticles,
-    Screen.BottomNavScreen.Favorites
+    Screen.PrimaryScreen.HymnsList,
+    Screen.PrimaryScreen.Canticles,
+    Screen.PrimaryScreen.Favorites
 )
 
 @Composable
 fun MHABottomNavBar(
-    currentDestination: NavDestination?,
-    navController: NavHostController,
+    currentDestination: Screen,
+    navController: NavController<Screen>,
 ) {
     BottomNavigation(
         Modifier.height(56.dp),
@@ -44,7 +35,7 @@ fun MHABottomNavBar(
         bottomNavScreens.forEach { screen ->
 
             BottomNavigationItem(
-                selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                selected = currentDestination == screen,
                 selectedContentColor = Color(0xFF50D1AA),
                 unselectedContentColor = Color(0xFF707070),
                 label = {
@@ -55,7 +46,7 @@ fun MHABottomNavBar(
                         fontStyle = FontStyle.Normal
                     )
                 },
-                onClick = { navController.navigateTo(screen.route) },
+                onClick = { navController.navigate(screen) },
                 icon = {
                     Icon(
                         painter = painterResource(id = screen.icon),

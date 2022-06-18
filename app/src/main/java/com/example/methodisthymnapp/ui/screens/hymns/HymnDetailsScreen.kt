@@ -23,22 +23,24 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.navigation.NavController
 import com.example.methodisthymnapp.R
 import com.example.methodisthymnapp.data.Hymn
+import com.example.methodisthymnapp.ui.screens.Screen
+import dev.olshevski.navigation.reimagined.NavController
+import dev.olshevski.navigation.reimagined.pop
 
 private val MAX_LYRICS_TEXT_SIZE = 24.sp
 const val INTENT_TYPE_TEXT = "text/plain"
 
 @Composable
-fun HymnContentScreen(
-    navController: NavController,
+fun HymnDetailsScreen(
+    navController: NavController<Screen>,
     clickedHymnId: Int,
-    hymnContentViewModel: HymnContentViewModel
+    viewModel: HymnDetailsViewModel
 ) {
-    hymnContentViewModel.getHymn(clickedHymnId)
+    viewModel.getHymn(clickedHymnId)
 
-    val clickedHymn by hymnContentViewModel.result.observeAsState()
+    val clickedHymn by viewModel.result.observeAsState()
     var sliderPosition by remember { mutableStateOf(0f) }
     val defaultLyricsTextSize = typography.body1.fontSize
     var lyricsTextSize by remember { mutableStateOf(defaultLyricsTextSize) }
@@ -50,9 +52,14 @@ fun HymnContentScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             ContentAppBar(
                 title = getAppBarTitle(clickedHymnId),
-                onNavigationActionClick = { navController.navigateUp() },
+                onNavigationActionClick = { navController.pop() },
                 onTextSizeActionClick = { showTextSizeSlider = !showTextSizeSlider },
-                onShareActionClick = { onShareActionClick(context, clickedHymn?.lyrics ?: "Lyrics Not Available")},
+                onShareActionClick = {
+                    onShareActionClick(
+                        context = context,
+                        lyrics = clickedHymn?.lyrics ?: "Lyrics Not Available"
+                    )
+                },
                 elevation = if (scrollState.value > 1) 4.dp else 0.dp
             )
 
@@ -110,7 +117,7 @@ fun ContentAppBar(
             Text(
                 text = title,
                 color = MaterialTheme.colors.onBackground,
-                style = typography.subtitle1.copy(fontSize = 16.sp,),
+                style = typography.subtitle1.copy(fontSize = 16.sp),
             )
 
             Row(modifier = Modifier.align(Alignment.CenterEnd)) {
@@ -145,7 +152,7 @@ fun HymnContent(
         Modifier
             .fillMaxSize()
             .verticalScroll(scrollState),
-        ) {
+    ) {
         Text(
             modifier = Modifier
                 .fillMaxWidth()
@@ -246,7 +253,7 @@ private fun getAppBarTitle(id: Int): String {
     }
 }
 
-fun onShareActionClick (context : Context, lyrics : String ){
+fun onShareActionClick(context: Context, lyrics: String) {
     val sendIntent: Intent = Intent().apply {
         action = Intent.ACTION_SEND
         putExtra(Intent.EXTRA_TEXT, lyrics)
