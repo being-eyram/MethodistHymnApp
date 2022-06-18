@@ -36,8 +36,6 @@ fun SearchScreen(
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val isScrollInProgress by remember { derivedStateOf { listState.isScrollInProgress } }
-    // TODO : Migrate this state to viewmodel
-    var query by remember { mutableStateOf("") }
 
     Scaffold(
         Modifier.fillMaxSize(),
@@ -45,13 +43,10 @@ fun SearchScreen(
             SearchAppBar(
                 listState = listState,
                 searchFocusRequester = focusRequester,
-                query = query,
+                query = uiState.query.value,
                 onClearClick = {},
-                onSearchTermChange = {
-                    query = it
-                    viewModel.onSearchTermChange(query)
-                },
-                onReturnClick = { navController.pop() },
+                onSearchTermChange = viewModel::onSearchTermChange ,
+                onReturnClick = navController::pop,
                 keyboardController = keyboardController
             )
         }
