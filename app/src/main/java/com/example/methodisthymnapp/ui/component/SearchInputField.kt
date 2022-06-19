@@ -33,7 +33,7 @@ import com.example.methodisthymnapp.R
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SearchBox(
+fun SearchInputField(
     modifier: Modifier = Modifier,
     placeholder: String = SEARCH,
     search: String = emptyString,
@@ -42,7 +42,6 @@ fun SearchBox(
     onReturnClick: () -> Unit,
     onClearClick: () -> Unit,
 ) {
-
 
     SearchFieldLayout(
         modifier = modifier,

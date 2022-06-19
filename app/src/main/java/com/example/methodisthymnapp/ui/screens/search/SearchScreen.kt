@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.example.methodisthymnapp.ui.component.HymnListCard
-import com.example.methodisthymnapp.ui.component.SearchBox
+import com.example.methodisthymnapp.ui.component.SearchInputField
 import com.example.methodisthymnapp.ui.component.navigateTo
 import com.example.methodisthymnapp.ui.screens.Screen
 import com.example.methodisthymnapp.ui.screens.hymns.elevation
@@ -97,7 +97,7 @@ private fun SearchAppBar(
         contentColor = MaterialTheme.colors.background.copy(0.87f),
         elevation = listState.elevation
     ) {
-        SearchBox(
+        SearchInputField(
             Modifier
                 .height(40.dp)
                 .padding(horizontal = 8.dp)
