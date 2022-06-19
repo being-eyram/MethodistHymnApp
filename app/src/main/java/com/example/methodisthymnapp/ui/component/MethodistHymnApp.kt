@@ -15,6 +15,7 @@ import com.example.methodisthymnapp.ui.screens.hymns.HymnsListScreen
 import com.example.methodisthymnapp.ui.screens.search.SearchScreen
 import com.example.methodisthymnapp.ui.theme.MHATheme
 import dev.olshevski.navigation.reimagined.*
+import kotlinx.coroutines.runBlocking
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -30,8 +31,18 @@ fun MethodistHymnApp() {
     val bottomNavBar: @Composable () -> Unit = {
         AnimatedVisibility(
             visible = showBottomNavBar,
-            enter = slideInVertically { it / 2 } + fadeIn(tween(90)),
-            exit = fadeOut(tween(90)) + slideOutVertically()
+            enter = slideInVertically { it } + fadeIn(tween(90)),
+            exit = runBlocking {
+                slideOutVertically(
+                    animationSpec = tween(durationMillis = 300),
+                    targetOffsetY = { it }
+                ) + fadeOut(
+                    animationSpec = tween(
+                        durationMillis = 90,
+                        delayMillis = 50
+                    )
+                )
+            }
         ) {
             MHABottomNavBar(
                 currentDestination = currentDestination,
