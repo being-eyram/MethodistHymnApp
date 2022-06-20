@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
 
 sealed class Screen : Parcelable {
 
-    //Represents Sub level Screens on Bottom Nav
+    //Represents Sub level Screens
     sealed class SecondaryScreen() : Screen() {
         @Parcelize
         object Search : SecondaryScreen()
@@ -17,7 +17,7 @@ sealed class Screen : Parcelable {
     }
 
     //Represents Top level Screens on Bottom Nav
-    sealed class PrimaryScreen(val route: String, @DrawableRes val icon: Int) : Screen() {
+    sealed class PrimaryScreen(val label: String, @DrawableRes val icon: Int) : Screen() {
         @Parcelize
         object Canticles : PrimaryScreen("canticles", R.drawable.ic_canticles)
 

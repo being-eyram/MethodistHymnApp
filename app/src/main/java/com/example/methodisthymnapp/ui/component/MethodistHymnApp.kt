@@ -1,7 +1,10 @@
 package com.example.methodisthymnapp.ui.component
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.*
@@ -31,16 +34,22 @@ fun MethodistHymnApp() {
     val bottomNavBar: @Composable () -> Unit = {
         AnimatedVisibility(
             visible = showBottomNavBar,
-            enter = slideInVertically { it } + fadeIn(tween(90)),
+            enter = slideInVertically(
+                animationSpec = tween(
+                    durationMillis = 350,
+                    delayMillis = 50,
+                    easing = CubicBezierEasing(0.61F, 1F, 0.88F, 1F)
+                ),
+                initialOffsetY = { it }
+            ),
             exit = runBlocking {
                 slideOutVertically(
-                    animationSpec = tween(durationMillis = 300),
-                    targetOffsetY = { it }
-                ) + fadeOut(
                     animationSpec = tween(
-                        durationMillis = 90,
-                        delayMillis = 50
-                    )
+                        durationMillis = 350,
+                        delayMillis = 50,
+                        easing = CubicBezierEasing(0.12F, 0F, 0.39F, 0F)
+                    ),
+                    targetOffsetY = { it }
                 )
             }
         ) {

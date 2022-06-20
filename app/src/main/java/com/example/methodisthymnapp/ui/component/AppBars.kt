@@ -38,7 +38,7 @@ fun MHABottomNavBar(
                 selectedContentColor = Color(0xFF50D1AA),
                 unselectedContentColor = Color(0xFF707070),
                 label = {
-                    val label = screen.route.replaceFirstChar { it.uppercaseChar() }
+                    val label = screen.label.replaceFirstChar { it.uppercaseChar() }
                     Text(
                         text = label,
                         fontSize = 12.sp,
@@ -49,7 +49,7 @@ fun MHABottomNavBar(
                 icon = {
                     Icon(
                         painter = painterResource(id = screen.icon),
-                        contentDescription = "Navigate to ${screen.route} screen"
+                        contentDescription = "Navigate to ${screen.label} screen"
                     )
                 }
             )

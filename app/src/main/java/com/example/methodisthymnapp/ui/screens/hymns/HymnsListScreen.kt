@@ -182,7 +182,3 @@ fun OverflowMenu(show: Boolean, onDismissRequest: () -> Unit) {
         }
     }
 }
-
-
-const val CLICKED_HYMN_ID = "clickedHymnId"
-const val HYMN_DETAILS_KEY = "HymnsContent"
